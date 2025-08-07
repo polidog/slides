@@ -9,25 +9,31 @@ style: |
     justify-content: start;
   }
   h1 {
-    font-size: 1.4em;
+    font-size: 1.2em;
     margin-top: 0;
     margin-bottom: 0.5em;
   }
   h2 {
-    font-size: 1.1em;
+    font-size: 1.0em;
     margin-top: 0;
     margin-bottom: 0.4em;
   }
   h3 {
-    font-size: 1.0em;
+    font-size: 0.8em;
     margin-top: 0.3em;
     margin-bottom: 0.3em;
   }
   p, li {
     font-size: 0.9em;
   }
+  p {
+    margin-top: 0.3em;
+  }
   code {
-    font-size: 0.8em;
+    font-size: 0.7em;
+  }
+  pre {
+    margin-top: 0.5em;
   }
   table {
     font-size: 0.75em;
@@ -64,14 +70,26 @@ style: |
     bottom: 80px;
     right: 60px;
   }
+  /* 強調テキスト */
+  .impact {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff6b6b;
+  }
+  .highlight {
+    background-color: #fff3cd;
+    padding: 0.2em 0.4em;
+    border-radius: 0.2em;
+  }
 ---
 <!-- _class: title -->
 
-# React Server Components
+# React Server Components で
+## API不要の開発体験
 
 @polidog
 
-Shizuoka Tech #2
+Shizuoka Tech #1
 
 ---
 
@@ -81,130 +99,100 @@ Shizuoka Tech #2
 
 - @polidog
 - パーティーハード株式会社という開発会社を経営しています。
-- 清水市出身、神奈川県在住の**脱藩エンジニア**
+- 清水市出身、神奈川県在住
 - 4歳と0歳の男の子のパパ
 - Symfony(PHP)が好き
 
 ---
 
-# 注意事項
-
-発表対象は、Reactちょっと知っている人向けの内容です。
-React ServerComponentsの全てを網羅するものではありません。
-React ServerComponentsの概要を知るためのものです。
-少しでも興味を持ってもらえたら嬉しいです。
-
----
 <!-- _class: title -->
-
-# なぜReact Server Componentsを話すのか？
-
+# なぜReact Server Componentsの話をするのか？
 
 ---
 
 ![bg](./images/printgraph.png)
-
 <div class="qr-container">
-  <img src="images/printgraph_qr.png" width="80px" />
+<img src="./images/printgraph_qr.png" width="100" alt="Printgraph QR Code">
 </div>
 
+
+---
+
+## 実体験から
+
+[**Printgraph**](https://printgraph.io) というサービスを開発
+
+- React Server Components中心で実装
+- **開発体験が予想以上に良かった**
+- APIを書かない開発に感動
+
+### 🎯 これは広めなければ！
+
+---
+
+# SPA開発あるある
+
+## これ、全部経験ありませんか？
+
+- 🤔 「このデータ、GET /users/:id/posts？POST /posts？」API設計で1日会議
+- 🤯 「token、refreshToken、どこに保存する？localStorage？cookie？」
+- 😤 「バックエンドでcreated_at、フロントでcreatedAt...」型のズレに悩む
+- 🥺 「ローディング中...」が3秒も表示される
+- 😱 「401エラーでリトライして、トークン更新して...」実装が複雑すぎる
+- 😭 「フロントとバック、別々にデプロイしなきゃ...」面倒くさい
+
 ---
 <!-- _class: title -->
 
-# Printgraphの開発を通じでバックエンドとフロントエンドを分離してWebAPIでつなぐ必要がないと思った
-
----
-<!-- _class: title -->
-
-# つまりPHPやRubyでバックエンドを作る時代が終わる
+# 昔はもっとシンプルだった
 
 ---
 
-# そもそもReact Server Componentsとは？
+# PHPの時代（2000年代）
 
-- サーバ側で実行されるReactコンポーネント                 
-- **データベースなどの内部APIに直接アクセス可能**         
-- クライアント側では、JavaScriptを実行せずにHTMLを表示    
-- ブラウザ向けのバンドルされたjsのサイズが軽減できる      
+```php
+<?php
+// index.php - これだけで動く！
+$posts = $db->query("SELECT * FROM posts");
+?>
+<html>
+  <body>
+    <?php foreach($posts as $post): ?>
+      <article>
+        <h2><?= $post['title'] ?></h2>
+        <p><?= $post['content'] ?></p>
+      </article>
+    <?php endforeach; ?>
+  </body>
+</html>
+```
 
----
-
-# React Server Componentsによって変わるwebアプリケーション開発
-
-- React Server ComponentsによってPHPやRubyなどで作ってたバックエンドサーバがいらなくなる
-- WebAPI( )などの仕様をバックエンド担当/フロントエンド担当で分離しなくてもいい
-- APIの仕様による人間のコミュニケーションなどがなくなって、開発速度があがる
-
----
-
-# 今日話すこと
-
-- React Server Componentsとは？
-- React Client Componentsとの違い
-- Server Actionsの紹介
-- Server Componentsのメリット, デメリット
-- まとめ
+### 👍 シンプル！早い！分かりやすい！
 
 ---
 
----
+# そしてSPA時代へ（2010年代後半）
 
-# React Server Componentsとは？
-
-- サーバ側で実行されるReactコンポーネント
-- **データベースなどの内部APIに直接アクセス可能**
-- クライアント側では、JavaScriptを実行せずにHTMLを表示
-- ブラウザ向けのバンドルされたjsのサイズが軽減できる
-
---- 
-
-# 従来のReact(Client Component)では...
-
+### フロントエンド（React）
 ```tsx
-// 従来のReact（Client Component）
 import { useState, useEffect } from 'react';
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
-
-const Posts: React.FC = () => {
+export default function PostList() {
   const [posts, setPosts] = useState<Post[]>([]);
-  
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetch('/api/posts')
       .then(res => res.json())
-      .then((data: Post[]) => setPosts(data));
+      .then(data => {
+        setPosts(data);
+        setLoading(false);
+      });
   }, []);
-  
-  return <div>{/* ... */}</div>;
-};
-```
 
----
-
-# React Server Componentsなら...
-
-```tsx
-// Server Component - APIエンドポイント不要！
-import { db } from '@/lib/db';
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
-
-async function Posts() {
-  // サーバー側で直接データベースにアクセス
-  const posts = await db.query<Post[]>('SELECT * FROM posts');
-  
-  // HTMLとして配信される（JavaScriptは送信されない）
   return (
     <div>
-      {posts.map((post) => (
+      {posts.map(post => (
         <article key={post.id}>
           <h2>{post.title}</h2>
           <p>{post.content}</p>
@@ -217,101 +205,63 @@ async function Posts() {
 
 ---
 
-# SSR（Server Side Rendering）との違い
 
-| 項目 | SSR | Server Components |
-|---|---|---|
-| レンダリング | 初回のみサーバー側 | 常にサーバー側 |
-| JavaScript | 全てのコードが送信 | Server Componentのコードは送信されない |
-| Hydration | 必要（サーバーとクライアントで同じコードを実行） | 不要（Server Componentはハイドレーションしない） |
-| 状態管理 | 可能 | Server Component内では不可 |
-| パフォーマンス | 初回表示は速いが、JSバンドルは大きい | 初回表示速く、JSバンドル小さい |
+# そしてSPA時代へ（2010年代後半）
 
+#### バックエンド（Symfony）
 
----
+```php
+<?php
+// src/Controller/ApiController.php
+namespace App\Controller;
 
-# SSR（Next.js Pages Router)
-```tsx
-// pages/posts.tsx - SSRの例
-import { GetServerSideProps } from 'next';
-import { useState } from 'react';
+use App\Entity\Post;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
-
-interface Props {
-  posts: Post[];
-}
-
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  const posts = await db.query<Post[]>('SELECT * FROM posts');
-  return { props: { posts } };
-}
-
-export default function Posts({ posts }: Props) {
-  const [likes, setLikes] = useState(0);
-  // このコンポーネント全体がクライアントに送信される
-  return <div>...</div>;
+class ApiController extends AbstractController
+{
+    #[Route('/api/posts', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function getPosts(EntityManagerInterface $em): JsonResponse
+    {
+        $posts = $em->getRepository(Post::class)->findAll();
+        return $this->json($posts);
+    }
 }
 ```
 
 ---
 
-# Server Components
-```tsx
-// app/posts/page.tsx - Server Componentの例
-import { db } from '@/lib/db';
+<!-- _class: title -->
+# 😰 フロントエンドとバックエンドが分離された結果、開発が複雑に...
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
+---
+<!-- _class: title -->
 
-async function Posts() {
-  const posts = await db.query<Post[]>('SELECT * FROM posts');
-  // このコンポーネントはサーバーで実行され、HTMLのみ送信
-  return <div>...</div>;
-}
-```
+# 開発者の悲鳴
+
+## 「APIエンドポイント作るのめんどくさい」
+## 「型の二重管理つらい」
+## 「フロントとバックで仕様認識がズレる」
+## 「OpenAPI定義と実装が違ってる...」
+## 「初期表示遅い」
 
 ---
 
-# React Client Componentsとの違い
-
-|  | Server Components | Client Components |
-|---|---|---|
-| 実行場所 | サーバー | ブラウザ |
-| JavaScript | 送信されない | 送信される |
-| 状態管理 | ❌ | ⭕️ (useState, useEffect) |
-| イベント処理 | ❌ | ⭕️ (onClick等) |
-| DB/ファイル | ⭕️ 直接アクセス | ❌ APIが必要 |
-
----
-
-# Server Componentsの書き方
+# そこで登場！React Server Components
 
 ```tsx
-// app/posts/page.tsx
-// デフォルトでServer Component
-import { db } from '@/lib/db';
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
-
-async function PostList() {
-  // サーバー側でデータベースに直接アクセス
-  const posts = await db.query<Post[]>('SELECT * FROM posts');
+// app/posts/page.tsx - これだけ！
+export default async function PostsPage() {
+  const posts = await db.query('SELECT * FROM posts');
   
   return (
     <div>
-      {posts.map((post) => (
+      {posts.map(post => (
         <article key={post.id}>
           <h2>{post.title}</h2>
           <p>{post.content}</p>
@@ -322,21 +272,111 @@ async function PostList() {
 }
 ```
 
+
 ---
 
-# Client Componentsの書き方
+# サーバー上で実行されるReactコンポーネント
+- **サーバー側でレンダリング**され、HTMLとして配信
+- **データベース直接アクセス**が可能
+- **JavaScript バンドルに含まれない**（バンドルサイズ削減）
+- **機密情報**（APIキー等）を安全に使用可能
+
+---
+
+<!-- _class: title -->
+# でも、Server Componentには制約がある
+
+---
+
+# できること
+- ✅ **async/await** でデータ取得
+- ✅ **データベース直接アクセス**
+- ✅ **環境変数やAPIキー**を安全に使用
+- ✅ **サーバー側ライブラリ**を利用
+
+---
+
+# できないこと
+- ❌ **useState**, **useEffect** などのHooks
+- ❌ **onClick**, **onChange** などのイベントハンドラ
+- ❌ **ブラウザAPI** (localStorage, sessionStorageなど)
+- ❌ **クライアント側ライブラリ**
+
+### 🤔 **インタラクティブな機能はどうするの？**
+
+---
+<!-- _class: title -->
+
+# そこで Client Component！
 
 ```tsx
-// app/components/LikeButton.tsx
-'use client'; // この宣言が必要
+'use client'; // この一行でClient Componentに！
 
 import { useState } from 'react';
 
-interface LikeButtonProps {
-  postId?: number;
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <p>カウント: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        +1
+      </button>
+    </div>
+  );
 }
+```
 
-export default function LikeButton({ postId }: LikeButtonProps) {
+---
+
+# Client Componentとは？
+
+- **従来のReactコンポーネント**
+  - RSCと区別するために「Client Component」と呼ぶように
+- **ブラウザで実行**される
+- **Hooks**（useState, useEffectなど）や**イベントハンドラ**が使える
+- **JavaScriptバンドルに含まれる**
+
+---
+
+---
+
+# 実際の使い方
+
+### Server Component + Client Componentの組み合わせ
+
+```tsx
+// app/posts/page.tsx (Server Component)
+import { db } from '@/lib/db';
+import LikeButton from './LikeButton';
+
+export default async function PostsPage() {
+  const posts = await db.query('SELECT * FROM posts');
+  
+  return posts.map(post => (
+    <article key={post.id}>
+      <h2>{post.title}</h2>      {/* サーバーで生成 */}
+      <p>{post.content}</p>      {/* サーバーで生成 */}
+      <LikeButton postId={post.id} /> {/* クライアントで動作 */}
+    </article>
+  ));
+}
+```
+
+---
+
+# 実際の使い方
+
+### Server Component + Client Componentの組み合わせ
+
+```tsx
+// app/posts/LikeButton.tsx
+'use client'; // これでClient Componentになる
+
+import { useState } from 'react';
+
+export default function LikeButton({ postId }: { postId: number }) {
   const [likes, setLikes] = useState(0);
   
   return (
@@ -347,195 +387,345 @@ export default function LikeButton({ postId }: LikeButtonProps) {
 }
 ```
 
----
-
-# Server ComponentsとClient Componentsの組み合わせ
-
-```tsx
-// Server Component (app/posts/[id]/page.tsx)
-import { db } from '@/lib/db';
-import LikeButton from '@/components/LikeButton';
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
-
-interface Props {
-  params: { id: string };
-}
-
-async function PostDetail({ params }: Props) {
-  const post = await db.query<Post>(
-    'SELECT * FROM posts WHERE id = ?', 
-    [params.id]
-  );
-  
-  return (
-    <article>
-      <h1>{post.title}</h1>
-      <p>{post.content}</p>
-      {/* Client Componentを組み込む */}
-      <LikeButton postId={post.id} />
-    </article>
-  );
-}
-```
-
----
-
-# 組み合わせの設計パターン①：メインコンテンツとインタラクション
-
-```tsx
-// app/products/[id]/page.tsx - Server Component
-import { ProductInfo, ReviewList } from '@/components/server';
-import { AddToCartButton, ReviewForm } from '@/components/client';
-
-interface Props {
-  params: { id: string };
-}
-
-async function ProductPage({ params }: Props) {
-  // メインの商品情報はサーバーで取得（SEO重要・初期表示必須）
-  const product = await db.query<Product>(
-    'SELECT * FROM products WHERE id = ?', 
-    [params.id]
-  );
-  const reviews = await db.query<Review[]>(
-    'SELECT * FROM reviews WHERE product_id = ?', 
-    [params.id]
-  );
-  
-  return (
-    <div>
-      <ProductInfo product={product} />           {/* Server Component */}
-      <AddToCartButton productId={product.id} />  {/* Client Component - ユーザー操作 */}
-      <ReviewList reviews={reviews} />             {/* Server Component */}
-      <ReviewForm productId={product.id} />       {/* Client Component - フォーム入力 */}
-    </div>
-  );
-}
-```
-
----
-
-# 組み合わせの設計パターン②：段階的な情報読み込み
-
-```tsx
-// app/dashboard/page.tsx - Server Component
-import { getUser, getCriticalStats } from '@/lib/api';
-import { StatsSummary } from '@/components/server';
-import { DetailedCharts, RealtimeNotifications } from '@/components/client';
-
-interface User {
-  id: string;
-  name: string;
-}
-
-async function Dashboard() {
-  // 重要な初期データはサーバーで取得
-  const user = await getUser();
-  const criticalStats = await getCriticalStats(user.id);
-  
-  return (
-    <div>
-      <h1>{user.name}のダッシュボード</h1>
-      <StatsSummary stats={criticalStats} />      {/* Server Component */}
-      
-      {/* 詳細データはClient Componentで遅延読み込み */}
-      <DetailedCharts userId={user.id} />         {/* Client Component */}
-      <RealtimeNotifications userId={user.id} />  {/* Client Component */}
-    </div>
-  );
-}
-
-// components/client/DetailedCharts.tsx
-'use client';
-import { useState, useEffect } from 'react';
-import { fetchDetailedStats } from '@/lib/api';
-
-interface Props {
-  userId: string;
-}
-
-export function DetailedCharts({ userId }: Props) {
-  // ユーザー操作や時間経過で追加データを取得
-  const [chartData, setChartData] = useState<ChartData | null>(null);
-  
-  useEffect(() => {
-    // 初期表示後に詳細データを取得
-    fetchDetailedStats(userId).then(setChartData);
-  }, [userId]);
-  
-  return chartData ? <Chart data={chartData} /> : <Skeleton />;
-}
-```
-
----
-
-# Server/Client Componentsの境界設計のベストプラクティス
-
-- Server Componentsで処理すべきもの
-  - **SEOが重要なメインコンテンツ**（記事本文、商品情報）
-  - **初期表示に必須のデータ**（ユーザー情報、ページタイトル）
-  - **重いデータ処理**（マークダウン変換、データ集計）
-  - **機密情報を扱う処理**（API キー、データベース接続）
-- Client Componentsで処理すべきもの
-  - **ユーザーインタラクション**（クリック、フォーム入力）
-  - **リアルタイム更新**（チャット、通知）
-  - **ブラウザAPI使用**（位置情報、カメラ）
-  - **副次的な情報の遅延読み込み**（関連商品、詳細グラフ）
-
 --- 
 
-# 重要な原則
+# 役割分担
 
-- **「ページの主要な情報はServer Componentsで、インタラクティブな要素はClient Componentsで」**
+- **Server Component**: データ取得、HTML生成
+- **Client Component**: インタラクション、状態管理
+
+---
+
+# 🤔 SSRとは何が違うの？
+
+## 従来のSSR（Server-Side Rendering）
+- **ページ全体**をサーバーでレンダリング
+- **すべてのJavaScript**がクライアントに送信される
+- **Hydration**（サーバーHTMLにイベントを付与）が必要
+- **データ取得後もコンポーネントのコード**がバンドルに含まれる
+
+## React Server Components
+- **コンポーネント単位**でサーバー実行を選択
+- **Server ComponentのJS**はクライアントに送られない
+- **必要な部分だけ**をClient Componentに
+- **バンドルサイズを大幅削減**
+
+### 🎯 **SSRは「どこで」レンダリングするか、RSCは「何を」レンダリングするか**
+
+---
+
+<!-- _class: title -->
+# ⚠️ データ受け渡しの制約
+
+---
+
+# ⚠️ データ受け渡しの制約
+
+## Server → Client Componentに渡せないもの
+- ❌ **関数**（メソッドを含む）
+- ❌ **Date オブジェクト**
+- ❌ **undefined** 値
+- ❌ **Symbol**
+- ❌ **クラスのインスタンス**
+
+---
+# ⚠️ データ受け渡しの制約
+
+## 渡せるもの
+- ✅ **プリミティブ値**（string, number, boolean, null）
+- ✅ **プレーンなオブジェクト**（JSONシリアライズ可能）
+- ✅ **配列**
+
+### 💡 **理由：propsはJSON.stringify()でシリアライズされるため**
+
+---
+
+<!-- _class: title -->
+# Server Actions
 
 ---
 
 # Server Actionsとは？
 
-- フォーム送信やデータ更新をサーバー側で処理
-- クライアント側のJavaScriptなしでも動作
-- プログレッシブエンハンスメント対応
+## サーバー側で実行される関数
+
+- **'use server'** ディレクティブで宣言
+- **フォームのaction属性**に直接指定可能
+- **データベースアクセス**や**APIキー**が安全に使える
+- **APIエンドポイントが不要**
+
+### 🎯 **フォーム処理がこれまでになくシンプルに！**
 
 ---
 
-```tsx
-// app/actions.ts
-'use server';
+# Server Actions - フォーム処理も簡単！
 
+### Server Actionsの実装
+
+```tsx
+// app/posts/actions.ts
+'use server';
 import { redirect } from 'next/navigation';
-import { db } from '@/lib/db';
 
 export async function createPost(formData: FormData) {
-  const title = formData.get('title') as string;
-  const content = formData.get('content') as string;
+  const title = formData.get('title');
+  const content = formData.get('content');
   
-  await db.query(
-    'INSERT INTO posts (title, content) VALUES (?, ?)', 
-    [title, content]
-  );
+  await db.query('INSERT INTO posts (title, content) VALUES (?, ?)', 
+    [title, content]);
   
-  redirect('/posts');
+  redirect('/posts'); // リダイレクトも簡単
 }
 ```
 
 ---
 
-# Server Actionsの使用例
+# Server Actions - フォーム処理も簡単！
+
+### Formの実装
 
 ```tsx
-// app/posts/new/page.tsx (Server Component)
-import { createPost } from '@/app/actions';
+// app/posts/new/page.tsx
+import { createPost } from './actions';
 
 export default function NewPost() {
   return (
     <form action={createPost}>
+      <input name="title" placeholder="タイトル" />
+      <textarea name="content" placeholder="内容" />
+      <button type="submit">投稿</button>
+    </form>
+  );
+}
+```
+
+
+---
+
+# Server Actions + useActionState + Zod
+
+### Server Actionsの実装
+
+```tsx
+// actions.ts - Server Actions用ファイル
+'use server';
+import { z } from 'zod';
+
+// Zodスキーマで型安全なバリデーション
+const schema = z.object({
+  name: z.string().min(3, 'ユーザー名は3文字以上必要です'),
+  email: z.string().email('有効なメールアドレスを入力してください')
+});
+
+export async function createUser(prevState: any, formData: FormData) {
+  const result = schema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email')
+  });
+  
+  if (!result.success) {
+    return { errors: result.error.flatten().fieldErrors };
+  }
+  
+  // バリデーション通過後の処理
+  await db.user.create({ data: result.data });
+  return { success: true };
+}
+```
+
+---
+
+# Server Actions + useActionState + Zod
+
+### フォーム側の実装
+
+```tsx
+// UserForm.tsx - Client Component
+'use client';
+import { useActionState } from 'react';
+import { createUser } from './actions';
+
+export default function UserForm() {
+  const [state, formAction] = useActionState(createUser, null);
+  
+  return (
+    <form action={formAction}>
+      <input name="name" placeholder="ユーザー名" />
+      {state?.errors?.name && <p>{state.errors.name[0]}</p>}
+      
+      <input name="email" placeholder="メールアドレス" />
+      {state?.errors?.email && <p>{state.errors.email[0]}</p>}
+      
+      <button type="submit">登録</button>
+      {state?.success && <p>登録完了！</p>}
+    </form>
+  );
+}
+```
+
+### 🎯 **バリデーションもReact標準のHookで！**
+
+---
+
+# まとめ
+
+## React Server Components + Server Actions = API不要開発
+
+- 🚀 **開発が劇的に速くなる**
+  - APIエンドポイントの設計・実装が不要
+  - フロントとバックの型の二重管理から解放
+  - データベースから画面まで一気通貫で実装
+- 🎯 **エンジニアに求められるスキルの変化**
+  - **フロントエンドエンジニア** → DBやサーバー側の知識が必要に
+  - **バックエンドエンジニア** → React/TypeScriptの習得が必須に
+  - **フルスタックWebアプリケーションエンジニア** が当たり前の時代へ
+
+---
+
+<!-- _class: title -->
+# おまけ
+
+---
+
+# 型安全なデータベースアクセス
+
+## Prismaと組み合わせると...
+
+### DBスキーマもTypeScriptの型として扱える！
+
+```tsx
+// DBスキーマが変更されたら...
+const posts = await prisma.post.findMany();
+
+posts[0].title;  // ✅ 型安全
+posts[0].title;  // ❌ コンパイル時にエラー！
+```
+
+### 🎯 **DBスキーマ変更時も**
+### **エディタレベルで即座にエラーを検知**
+
+- SQLのタイポによる実行時エラーから解放
+- スキーマ変更の影響をコード全体で自動チェック
+- IDEの補完機能でDBカラム名も間違えない
+
+---
+
+# 実際に使ってみよう！
+
+## 1. Next.jsプロジェクトの作成
+
+```bash
+npx create-next-app@latest my-app --app
+cd my-app
+```
+
+プロンプトで聞かれる選択：
+- **TypeScript?** → Yes
+- **ESLint?** → Yes
+- **Tailwind CSS?** → お好みで
+- **App Router?** → Yes（必須）
+
+---
+
+# 2. Server Componentでデータ取得
+
+```tsx
+// app/posts/page.tsx
+export default async function PostsPage() {
+  // 直接データベースにアクセス！
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const posts = await response.json();
+  
+  return (
+    <div>
+      <h1>記事一覧</h1>
+      {posts.map((post: any) => (
+        <article key={post.id}>
+          <h2>{post.title}</h2>
+          <p>{post.body}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+### 🎯 **ポイント：async/awaitで直接データ取得！**
+
+---
+
+# 3. Client Componentでインタラクション追加
+
+```tsx
+// app/posts/LikeButton.tsx
+'use client'; // この一行でClient Componentに！
+
+import { useState } from 'react';
+
+export default function LikeButton() {
+  const [liked, setLiked] = useState(false);
+  
+  return (
+    <button 
+      onClick={() => setLiked(!liked)}
+      style={{ color: liked ? 'red' : 'gray' }}
+    >
+      {liked ? '♥' : '♡'} いいね
+    </button>
+  );
+}
+```
+
+---
+
+# 4. 組み合わせて使う
+
+```tsx
+// app/posts/page.tsx
+import LikeButton from './LikeButton';
+
+export default async function PostsPage() {
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const posts = await response.json();
+  
+  return (
+    <div>
+      <h1>記事一覧</h1>
+      {posts.slice(0, 5).map((post: any) => (
+        <article key={post.id}>
+          <h2>{post.title}</h2>
+          <p>{post.body}</p>
+          <LikeButton /> {/* Client Componentを配置 */}
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+# 5. Server Actionsでフォーム処理
+
+```tsx
+// app/posts/new/page.tsx
+async function createPost(formData: FormData) {
+  'use server'; // Server Actionの宣言
+  
+  const title = formData.get('title');
+  const body = formData.get('body');
+  
+  // データベースに保存（実際の処理）
+  console.log('投稿を作成:', { title, body });
+  
+  // リダイレクト等の処理
+}
+
+export default function NewPostPage() {
+  return (
+    <form action={createPost}>
       <input name="title" placeholder="タイトル" required />
-      <textarea name="content" placeholder="内容" required />
+      <textarea name="body" placeholder="本文" required />
       <button type="submit">投稿する</button>
     </form>
   );
@@ -544,163 +734,63 @@ export default function NewPost() {
 
 ---
 
-# Client ComponentでのServer Actions
+# 6. Zodでバリデーション追加
+
+```bash
+npm install zod
+```
 
 ```tsx
-'use client';
-import { useFormStatus } from 'react-dom';
-import { createPost } from '@/app/actions';
+// app/posts/new/page.tsx
+import { z } from 'zod';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+const PostSchema = z.object({
+  title: z.string().min(1, 'タイトルは必須です'),
+  body: z.string().min(10, '本文は10文字以上必要です')
+});
+
+async function createPost(formData: FormData) {
+  'use server';
   
-  return (
-    <button type="submit" disabled={pending}>
-      {pending ? '送信中...' : '投稿する'}
-    </button>
-  );
-}
-
-export default function NewPostForm() {
-  return (
-    <form action={createPost}>
-      <input name="title" placeholder="タイトル" />
-      <textarea name="content" placeholder="内容" />
-      <SubmitButton />
-    </form>
-  );
+  const result = PostSchema.safeParse({
+    title: formData.get('title'),
+    body: formData.get('body')
+  });
+  
+  if (!result.success) {
+    return { errors: result.error.flatten().fieldErrors };
+  }
+  
+  // 成功時の処理
+  return { success: true };
 }
 ```
 
 ---
 
-# 実際のユースケース①：ブログサイト
 
-```tsx
-// app/page.tsx - トップページ（Server Component）
-import { db } from '@/lib/db';
-import { CategoryList, PostGrid } from '@/components/server';
-import { NewsletterForm } from '@/components/client';
+# よくある質問
 
-interface Post {
-  id: number;
-  title: string;
-  created_at: Date;
-}
+## Q: 既存のSPAプロジェクトはどうする？
+A: 段階的に移行可能！新機能からRSCで実装
 
-interface Category {
-  id: number;
-  name: string;
-}
+## Q: APIが本当に不要？
+A: 外部連携やモバイルアプリ用には必要。でもフロントエンドとバックエンド間では不要！
 
-async function HomePage() {
-  const recentPosts = await db.query<Post[]>(
-    'SELECT * FROM posts ORDER BY created_at DESC LIMIT 10'
-  );
-  const categories = await db.query<Category[]>('SELECT * FROM categories');
-  
-  return (
-    <main>
-      <CategoryList categories={categories} />
-      <PostGrid posts={recentPosts} />
-      <NewsletterForm /> {/* Client Component */}
-    </main>
-  );
-}
-```
+## Q: 学習コストは？
+A: SPAを知っていれば1週間で基本をマスター
 
-初期表示が高速で、SEOにも有利！
+## Q: デメリットは？
+A: Node.jsサーバーが必要（Vercelなどで解決）
 
 ---
 
-# 実際のユースケース②：ECサイトの商品詳細
-
-```tsx
-// app/products/[id]/page.tsx
-import { getProduct, getReviews, getRelatedProducts } from '@/lib/api';
-import { ProductInfo, ReviewList, RelatedProducts } from '@/components/server';
-import { AddToCartButton } from '@/components/client';
-
-interface Props {
-  params: { id: string };
-}
-
-async function ProductDetail({ params }: Props) {
-  // 複数のデータソースから並列取得
-  const [product, reviews, relatedProducts] = await Promise.all([
-    getProduct(params.id),
-    getReviews(params.id),
-    getRelatedProducts(params.id)
-  ]);
-  
-  return (
-    <>
-      <ProductInfo product={product} />
-      <AddToCartButton productId={product.id} /> {/* Client */}
-      <ReviewList reviews={reviews} />
-      <RelatedProducts products={relatedProducts} />
-    </>
-  );
-}
-```
-
----
-
-# Server Componentsのメリット
-
-- パフォーマンスの向上
-  - **バンドルサイズの削減** - サーバー側のコードはクライアントに送信されない
-  - **初期表示の高速化** - データ取得とレンダリングがサーバー側で完結
-- 開発効率の向上
-  - **APIエンドポイントの削減** - データベースに直接アクセス可能
-  - **セキュリティの向上** - APIキーや機密情報をクライアントに露出しない
-- SEOの改善
-  - **完全なHTMLの配信** - 検索エンジンがコンテンツを正しく認識
-
----
-
-# Server Componentsのデメリット
-
-- 制限事項
-  - **状態管理ができない** - useState, useEffectなどのHooksは使用不可
-  - **イベントハンドラが使えない** - onClick等はClient Componentで
-- 学習コスト
-  - **新しい概念の理解** - Server/Client の使い分けが必要
-  - **デバッグの複雑化** - サーバー側とクライアント側の切り分け
-- インフラ要件
-  - **Node.jsサーバーが必要** - 静的ホスティングでは使用不可
-
----
-
-# Server ComponentsとClient Componentsの使い分け
-
-- Server Componentsを使うべき場面
-  - データ取得が必要なコンポーネント
-  - 大きなライブラリを使用する場合（Markdown parser等）
-  - 機密情報を扱う場合
-- Client Componentsを使うべき場面
-  - ユーザーインタラクションが必要な場合
-  - ブラウザAPIを使用する場合
-  - リアルタイムな状態更新が必要な場合
-
----
-
-# まとめ
-
-- React Server Componentsによって実現できること
-  - **フルスタック開発の簡素化** - フロントエンドとバックエンドの境界が曖昧に
-  - **パフォーマンスの最適化** - 必要最小限のJavaScriptのみクライアントへ
-  - **開発体験の向上** - データ取得の記述がシンプルに
-- 今後の展望
-  - Next.js以外のフレームワークでも採用が進む
-  - より多くのユースケースで活用される
-  - エコシステムの充実
-
----
 
 # 参考リンク
 
 - [React Server Components RFC](https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md)
 - [Next.js App Router Documentation](https://nextjs.org/docs/app)
-- [Server Components Demo](https://github.com/reactjs/server-components-demo)
+- [Printgraph](https://printgraph.io) - RSCで作った実例
 
+## スライド資料
+https://github.com/polidog/slides/shizuoka-tech
