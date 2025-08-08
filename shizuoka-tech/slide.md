@@ -244,11 +244,12 @@ class ApiController extends AbstractController
 
 # 開発者の悲鳴
 
-## 「APIエンドポイント作るのめんどくさい」
-## 「型の二重管理つらい」
-## 「フロントとバックで仕様認識がズレる」
-## 「OpenAPI定義と実装が違ってる...」
-## 「初期表示遅い」
+- ## 「APIエンドポイント作るのめんどくさい」
+- ## 「型の二重管理つらい」
+- ## 「フロントとバックで仕様認識がズレる」
+- ## 「OpenAPI定義と実装が違ってる...」
+
+### 開発者同士のコミュニケーションコストも馬鹿にならない
 
 ---
 
@@ -575,6 +576,7 @@ export default function UserForm() {
   - APIエンドポイントの設計・実装が不要
   - フロントとバックの型の二重管理から解放
   - データベースから画面まで一気通貫で実装
+  - 開発者同士の不毛なコミュニケーションも減らせる
 - 🎯 **エンジニアに求められるスキルの変化**
   - **フロントエンドエンジニア** → DBやサーバー側の知識が必要に
   - **バックエンドエンジニア** → React/TypeScriptの習得が必須に
@@ -790,7 +792,4 @@ A: Node.jsサーバーが必要（Vercelなどで解決）
 
 - [React Server Components RFC](https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md)
 - [Next.js App Router Documentation](https://nextjs.org/docs/app)
-- [Printgraph](https://printgraph.io) - RSCで作った実例
 
-## スライド資料
-https://github.com/polidog/slides/shizuoka-tech
