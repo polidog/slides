@@ -341,8 +341,6 @@ export default function Counter() {
 
 ---
 
----
-
 # 実際の使い方
 
 ### Server Component + Client Componentの組み合わせ
@@ -411,16 +409,35 @@ export default function LikeButton({ postId }: { postId: number }) {
 - **必要な部分だけ**をClient Componentに
 - **バンドルサイズを大幅削減**
 
-### 🎯 **SSRは「どこで」レンダリングするか、RSCは「何を」レンダリングするか**
+---
+<!-- _class: title -->
+
+# SSRは「どこで」レンダリングするか、RSCは「何を」レンダリングするか
+
+---
+
+# なぜこれが画期的なのか？
+
+## 従来のIsomorphism
+- 😰 **全コードが両環境で実行** → バンドルサイズ肥大化
+- 🔒 **機密情報の扱いが困難** → 環境変数の複雑な管理
+- 🎭 **サーバー/クライアントの区別が曖昧** → 実行環境の判定が必要
+
+## RSCのIsomorphism
+- ✨ **適材適所で実行** → 最小限のJavaScriptのみクライアントへ
+- 🔐 **セキュリティ向上** → APIキーやDBアクセスをサーバー側に隔離
+- 🎯 **開発者体験の向上** → 明確な責任分離
+
+### 💡 **パラダイムシフト：「同じコードを両方で」から「統一モデルで適切な場所で」へ**
 
 ---
 
 <!-- _class: title -->
-# ⚠️ データ受け渡しの制約
+# Server ComponentとClient Componentでのデータの受け渡しの制約
 
 ---
 
-# ⚠️ データ受け渡しの制約
+# データの受け渡しの制約
 
 ## Server → Client Componentに渡せないもの
 - ❌ **関数**（メソッドを含む）
@@ -516,7 +533,7 @@ import { z } from 'zod';
 const schema = z.object({
   name: z.string().min(3, 'ユーザー名は3文字以上必要です'),
   email: z.string().email('有効なメールアドレスを入力してください')
-});
+})
 
 export async function createUser(prevState: any, formData: FormData) {
   const result = schema.safeParse({
@@ -600,7 +617,7 @@ export default function UserForm() {
 const posts = await prisma.post.findMany();
 
 posts[0].title;  // ✅ 型安全
-posts[0].title;  // ❌ コンパイル時にエラー！
+posts[0].tytle;  // ❌ コンパイル時にエラー！
 ```
 
 ### 🎯 **DBスキーマ変更時も**
