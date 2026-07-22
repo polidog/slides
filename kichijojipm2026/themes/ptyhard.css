@@ -1,0 +1,255 @@
+/* @theme ptyhard */
+
+@import 'default';
+
+:root {
+  --color-bg: #ffffff;
+  --color-fg: #1a1a1a;
+  --color-primary: #f5c518;
+  --color-primary-light: #f7d34a;
+  --color-accent: #1a73e8;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-code-bg: #f5f5f5;
+  --color-dark-bg: #1e1e1e;
+  --color-dark-fg: #f0f0f0;
+  --color-impact-bg: var(--color-bg);
+  --color-impact-fg: var(--color-fg);
+
+  font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
+
+/* ─── Base ─── */
+
+section {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  padding: 60px 70px;
+  justify-content: flex-start;
+  align-content: start; /* default テーマの safe center を打ち消して上詰めにする */
+  font-size: 28px;
+  line-height: 1.6;
+}
+
+h1 {
+  color: var(--color-fg);
+  font-size: 1.6em;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0.6em;
+}
+
+h2 {
+  color: var(--color-fg);
+  font-size: 1.2em;
+  margin-bottom: 0.5em;
+}
+
+h3 {
+  font-size: 1.0em;
+  color: var(--color-muted);
+}
+
+ul, ol {
+  margin-top: 0.4em;
+}
+
+li {
+  margin-bottom: 0.3em;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+code {
+  background: var(--color-code-bg);
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+  font-size: 0.85em;
+}
+
+pre {
+  background: var(--color-code-bg);
+  border-radius: 8px;
+  padding: 1em;
+  font-size: 0.7em;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+blockquote {
+  border-left: 4px solid var(--color-fg);
+  padding-left: 1em;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+table {
+  font-size: 0.8em;
+}
+
+table th {
+  background: var(--color-fg);
+  color: #fff;
+}
+
+/* ─── Footer / Paginate ─── */
+
+section::after {
+  font-size: 0.6em;
+  color: var(--color-muted);
+}
+
+footer {
+  font-size: 0.5em;
+  color: var(--color-muted);
+}
+
+/* ─── lead: 表紙・章扉・締め ─── */
+
+section.lead {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  padding: 60px 80px;
+}
+
+section.lead {
+  background-color: var(--color-primary);
+}
+
+section.lead h1 {
+  border-bottom: none;
+  font-size: 2.2em;
+  margin-bottom: 0.3em;
+  color: var(--color-fg);
+}
+
+section.lead h2 {
+  font-size: 1.1em;
+  color: var(--color-fg);
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 0.1em;
+}
+
+section.lead p {
+  color: var(--color-fg);
+  font-size: 0.9em;
+}
+
+/* ─── impact: アクセント色ベタ塗り ─── */
+
+section.impact {
+  background-color: var(--color-impact-bg);
+  color: var(--color-impact-fg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+}
+
+section.impact h1 {
+  color: var(--color-impact-fg);
+  border-bottom: none;
+  font-size: 2.4em;
+}
+
+section.impact h2 {
+  color: var(--color-muted);
+  font-size: 1.3em;
+  font-weight: normal;
+}
+
+section.impact p {
+  color: var(--color-muted);
+}
+
+/* ─── dark: 黒背景 ─── */
+
+section.dark {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-fg);
+}
+
+section.dark h1 {
+  color: var(--color-primary);
+  border-bottom: none;
+}
+
+section.dark h2 {
+  color: var(--color-dark-fg);
+}
+
+section.dark code {
+  background: #2d2d2d;
+}
+
+section.dark pre {
+  background: #2d2d2d;
+}
+
+section.dark blockquote {
+  border-left-color: var(--color-primary-light);
+  color: #a0a0a0;
+}
+
+/* ─── logo: 右上ロゴ ─── */
+
+section .logo {
+  position: absolute;
+  top: -10px;
+  right: 40px;
+  width: 200px;
+  height: auto;
+}
+
+/* ─── columns: 2カラム ─── */
+
+section .columns {
+  display: flex;
+  gap: 40px;
+  width: 100%;
+  margin-top: 0.4em;
+}
+
+section .columns .col {
+  flex: 1;
+}
+
+section .columns ul {
+  margin-top: 0;
+  padding-left: 1.2em;
+}
+
+section .columns li {
+  font-size: 0.85em;
+  line-height: 1.7;
+}
+
+/* ─── center: 中央寄せ ─── */
+
+section.center {
+  justify-content: center;
+  align-content: safe center;
+  align-items: center;
+  text-align: center;
+}
+
+/* ─── full: 画像1枚 ─── */
+
+section.full {
+  padding: 0;
+}
+
+section.full img {
+  object-fit: contain;
+}

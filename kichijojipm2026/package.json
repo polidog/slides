@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "marp --server --html slides.md --theme-set ./themes -p 8080",
+    "pdf": "marp --html slides.md --theme-set ./themes --pdf -o dist/slides.pdf",
+    "png": "marp --html slides.md --theme-set ./themes --images png -o dist/slides.png"
+  },
+  "devDependencies": {
+    "@marp-team/marp-cli": "^4.3.1"
+  }
+}
