@@ -54,7 +54,7 @@ style: |
   section[data-marpit-pagination]::after {
     content: attr(data-marpit-pagination);
     position: absolute;
-    bottom: 20px;
+    bottom: 20px
     right: 20px;
     font-size: 0.8em;
     color: #666;
@@ -257,7 +257,7 @@ operations:
 
 # DEMRALを参考にClaude Codeのスキルに
 
-各活動をスラッシュコマンドとして実装し、AIと対話しながら設計資産を作る。
+各活動をスキルとして実装し、AIと対話しながら設計資産を作る。
 
 | 活動 | スキル | 成果物 |
 |---|---|---|
