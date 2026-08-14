@@ -199,7 +199,7 @@ Shizuoka Tech #2
 - なぜ今PHPなのか？
 - Relayerとは何か？
 - DBを支えるTehilim
-- 今後の展望について
+- これからはAIと一緒に書く時代
 
 ## 今日のゴール
 
@@ -362,8 +362,8 @@ Parameter #1 $user of function sendMail expects User, User|null given.
 
 - ルーティング・API・認証・キャッシュ・DBをひとつのbootエントリにまとめる規約重視の設計
 - `src/Pages/` のディレクトリ構成がそのままURLになる（`[id]` は動的セグメント）
-- すべてをコンポーネントとして扱う
-- Server Actions対応
+- すべてコンポーネントで書ける
+- Server Actionsみたいな機構がある
 
 ```bash
 composer require polidog/relayer
@@ -475,7 +475,7 @@ window.relayerIslands.register('Chart', (el, props) => {
 
 ---
 
-# Server Actionsもある
+# Server Actionsみたいな機構もある
 
 ```php
 return function (PageContext $ctx, UserRepository $users): Closure {
@@ -681,11 +681,6 @@ final class UsersPage extends PageComponent
 
 ---
 
-<!-- _class: title -->
-# 今後の展望について
-
----
-
 # これからはAIと一緒に書く時代
 
 ## RelayerはAI協働を前提に設計してある
@@ -699,25 +694,13 @@ final class UsersPage extends PageComponent
 
 ---
 
-<!-- _class: title -->
-# で、ロードマップは？
-
----
-
-<!-- _class: title -->
-# <span class="impact">特にないです</span>
-
-### 趣味で作ってるので。楽しいから作る、それだけ
-
----
-
 # まとめ
 
 - PHPは言語も、開発体験も、実行環境も10年前とは別物
 - だからPHPでRelayerというフレームワークを作った
-  - すべてがコンポーネント、Server Actions、Defer + CDNキャッシュ
+  - すべてコンポーネントで書けて、Server Actionsみたいな機構もある。Defer + CDNキャッシュ
 - DBはTehilim。スキーマファースト + PHPStanで型安全
-- 展望は特にない。楽しいから作る、それだけ
+- 規約重視だからAIが迷わない。AI時代を前提にしたフレームワーク
 
 ### disる前に、一度触ってみてほしい
 
