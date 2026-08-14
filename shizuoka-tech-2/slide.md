@@ -179,7 +179,7 @@ Shizuoka Tech #2
 ---
 
 <!-- _class: title -->
-# PHPは昔からdisられているし、今もdisらてている
+# PHPは昔からdisられているし、今もdisられている
 
 
 ---
@@ -220,12 +220,10 @@ Shizuoka Tech #2
 
 - **2004年 PHP 5.0** — Zend Engine 2、OOPが本格化
 - **2014年 PHP 5.6** — PHP5系の最終版（disのイメージはだいたいこの辺で止まってる）
-- **2015年 PHP 7.0** — 実行エンジンを全面刷新（phpng）、**一気に約2倍高速化**
-- **2020年 PHP 8.0** — **JITコンパイラ**搭載、union型・match式・attributes
+- **2015年 PHP 7.0** — 実行エンジンを全面刷新（phpng）、一気に約2倍高速化
+- **2020年 PHP 8.0** — JITコンパイラ搭載、union型・match式・attributes
 - **2021年 PHP 8.1** — enum、readonly、Fiber
 - **2024年 PHP 8.4** — property hooks、非対称可視性
-
-### 🎯 **この10年でPHPは書き方も速度も別言語レベルに進化**
 
 ---
 
@@ -252,7 +250,7 @@ class Money
 }
 ```
 
-### 😰 **型なし・getter地獄・実行時エラー頼み**
+### 型なし・getter地獄・実行時エラー頼み
 
 ---
 
@@ -280,7 +278,7 @@ $label = match ($money->currency) {
 };
 ```
 
-### ✨ **enum + readonly + constructor promotion + match式**
+### enum + readonly + constructor promotion + match式
 
 ---
 
@@ -294,7 +292,7 @@ $label = match ($money->currency) {
 | 7.0 | 234ms | 2,682 |
 | 8.0 | **164ms** | **3,836** |
 
-### 🎯 **PHP 5.6 → 8.0 で<span class="impact">約3倍</span>高速化、メモリは半分**
+### PHP 5.6 → 8.0 で<span class="impact">約3倍</span>速くなった。メモリ使用量は半分
 
 ---
 
@@ -312,10 +310,10 @@ function main(?User $user): void {
 Parameter #1 $user of function sendMail expects User, User|null given.
 ```
 
-- **PHPStan** — 実行前に型チェック、PHPDocでgenericsまで解析。CIで回すのが現代の標準
-- **Rector** — PHP 5系の古い書き方をPHP 8流に**自動変換**。バージョンアップすら自動化
+- PHPStanが実行前に型チェックしてくれる。PHPDocでgenericsまで書けるし、CIで回すのが今の標準
+- Rectorを使えば古い書き方をPHP 8流に自動で書き換えられる。バージョンアップすら自動化できる
 
-### 🎯 **開発体験は静的型付け言語並み**
+### 開発体験はもう静的型付け言語並み
 
 ---
 
@@ -324,13 +322,13 @@ Parameter #1 $user of function sendMail expects User, User|null given.
 ## 定番のdis「PHPはリクエストごとに死ぬ」→ もう過去の話
 
 - 従来（PHP-FPM）はリクエストごとに初期化して、返したら全部捨てる
-- 今は**アプリをメモリに常駐**させて捌く worker mode が主流
-  - Swoole / RoadRunner / Laravel Octane / **FrankenPHP**
-- ブートストラップコストがゼロに → FPM比で**数倍のスループット**
+- 今はアプリをメモリに常駐させて捌く worker mode が主流
+  - Swoole / RoadRunner / Laravel Octane / FrankenPHP
+- ブートストラップのコストが消えるので、FPM比で数倍のスループットが出る
 
 ## FrankenPHP（2023〜）
 
-- Caddy製・HTTP/3対応・単一バイナリでデプロイ、2024年に**PHP Foundation公式サポート**入り
+- Caddy製・HTTP/3対応・単一バイナリでデプロイできる。2024年にPHP Foundation公式サポート入り
 
 ---
 
@@ -350,11 +348,11 @@ Parameter #1 $user of function sendMail expects User, User|null given.
 ## Controllerで値を集めて、viewに渡す。以上。
 
 - MVCの構造は20年ずっと変わっていない
-- Twig / Bladeはしょせんテンプレート言語 → **JSX/TSXの表現力に勝てない**
+- Twig / Bladeはしょせんテンプレート言語で、JSX/TSXの表現力に勝てない
 - コンポーネント指向で書けないから、結局「SPA + API」構成に逃げがち
-- つまり**フロントエンドとの親和性が低い**
+- つまりフロントエンドとの親和性が低い
 
-### 🤔 **去年RSCを布教した身としては、PHPでもあの開発体験が欲しい**
+### 去年RSCを布教した身としては、PHPでもあの開発体験が欲しい
 
 ---
 
@@ -362,10 +360,10 @@ Parameter #1 $user of function sendMail expects User, User|null given.
 
 ## Next.js App Router風の規約で書けるPHPフルスタックフレームワーク
 
-- ルーティング・API・認証・キャッシュ・DBを**ひとつのbootエントリ**にまとめる規約重視の設計
-- `src/Pages/` のディレクトリ構成がそのままURLに（`[id]` は動的セグメント）
-- **すべてをコンポーネントとして扱う**
-- **Server Actions対応**
+- ルーティング・API・認証・キャッシュ・DBをひとつのbootエントリにまとめる規約重視の設計
+- `src/Pages/` のディレクトリ構成がそのままURLになる（`[id]` は動的セグメント）
+- すべてをコンポーネントとして扱う
+- Server Actions対応
 
 ```bash
 composer require polidog/relayer
@@ -378,23 +376,23 @@ php -S 127.0.0.1:8000 -t public
 # Relayerの技術構成
 
 <div class="arch">
-  <div class="arch-row">🌐 <strong>ブラウザ</strong> — HTML + usephp.js（プログレッシブエンハンスメント）/ React Islands</div>
+  <div class="arch-row"><strong>ブラウザ</strong> — HTML + usephp.js（プログレッシブエンハンスメント）/ React Islands</div>
   <div class="arch-arrow">▲▼ HTTP</div>
-  <div class="arch-row">☁️ <strong>CDN</strong> — Defer + Cache-Control でキャッシュを最大化</div>
+  <div class="arch-row"><strong>CDN</strong> — Defer + Cache-Control でキャッシュを最大化</div>
   <div class="arch-arrow">▲▼</div>
   <div class="arch-relayer">
     <div class="arch-label">Relayer 本体（PHP）</div>
     <div class="arch-cols">
-      <div>🗂 <strong>ルーティング</strong><br>src/Pages/ がそのままURLに</div>
-      <div>⚡ <strong>Server Actions</strong><br>フォーム処理 + CSRF自動</div>
-      <div>✅ <strong>Validation</strong><br>Zodライクなスキーマ検証</div>
+      <div><strong>ルーティング</strong><br>src/Pages/ がそのままURLに</div>
+      <div><strong>Server Actions</strong><br>フォーム処理 + CSRF自動</div>
+      <div><strong>Validation</strong><br>Zodライクなスキーマ検証</div>
     </div>
     <div class="arch-cols">
-      <div class="arch-usephp">🧩 <strong>usePHP</strong> — .psx をPHPコードにコンパイルするビュー層（← まずここから話します）</div>
+      <div class="arch-usephp"><strong>usePHP</strong> — .psx をPHPコードにコンパイルするビュー層（← まずここから話します）</div>
     </div>
   </div>
   <div class="arch-arrow">▲▼ SQL</div>
-  <div class="arch-row">🗄 <strong>Tehilim</strong> — スキーマファーストなDBツールキット（後半で解説）</div>
+  <div class="arch-row"><strong>Tehilim</strong> — スキーマファーストなDBツールキット（後半で解説）</div>
 </div>
 
 ---
@@ -439,17 +437,17 @@ return fn () => H::section(className: 'card', children: [
 ]);
 ```
 
-### 🎯 **魔法じゃない。属性は名前付き引数、子要素は `children` のただの関数呼び出し**
+### 魔法じゃない。属性は名前付き引数、子要素は `children` のただの関数呼び出し
 
 ---
 
 # JavaScriptがオフでも動く
 
-- usephp.js が**プログレッシブエンハンスメント**で強化する設計
-- JSが無い環境では**フォームPOSTにフォールバック**して全機能が動く
-- テキストはすべて `htmlspecialchars` で自動エスケープ（XSS安全）
+- usephp.js がプログレッシブエンハンスメントで強化する設計
+- JSが無い環境ではフォームPOSTにフォールバックして全機能が動く
+- テキストはすべて `htmlspecialchars` で自動エスケープされる（XSS安全）
 
-### 🎯 **Reactっぽく書けるけど、実体はサーバーレンダリングのPHP**
+### Reactっぽく書けるけど、実体はサーバーレンダリングのPHP
 
 ---
 
@@ -472,7 +470,7 @@ window.relayerIslands.register('Chart', (el, props) => {
 });
 ```
 
-- チャートやエディタなど**複雑なUIが必要な場所だけ**Reactをマウントできる
+- チャートやエディタなど、複雑なUIが必要な場所だけReactをマウントできる
 - propsは `data-react-props` にJSONで埋め込まれて渡る
 
 ---
@@ -495,7 +493,7 @@ return function (PageContext $ctx, UserRepository $users): Closure {
 };
 ```
 
-### 🎯 **フォーム処理をクロージャで直接書く。APIエンドポイント不要、CSRFも自動**
+### フォーム処理をクロージャで直接書く。APIエンドポイントは不要、CSRFも自動
 
 ---
 
@@ -517,7 +515,7 @@ if (!$result->success) {
 }
 ```
 
-### 🎯 **失敗→そのまま再描画、成功→PRG。Server Actionsと相性抜群**
+### 失敗したらそのまま再描画、成功したらPRG。Server Actionsと相性がいい
 
 ---
 
@@ -525,13 +523,13 @@ if (!$result->success) {
 
 ## Cookieを吐いた瞬間、キャッシュされない
 
-- Cloudflareは `Set-Cookie` 付きレスポンスを**問答無用でBYPASS**
-- PHPはセッションを開始すると `Cache-Control: no-store` を勝手に注入
+- Cloudflareは `Set-Cookie` 付きレスポンスを問答無用でBYPASSする
+- PHPはセッションを開始すると `Cache-Control: no-store` を勝手に注入する
 - 「1ページでもセッションを使うと全ページキャッシュ不可」になりがち
 
 ## Relayerの答え
 
-- セッションは**遅延起動** → 状態を触らないページは `Set-Cookie` を吐かない
+- セッションを遅延起動にして、状態を触らないページでは `Set-Cookie` を吐かない
 - `max-age`（ブラウザ）と `s-maxage`（CDN）を分けて設定できる
 
 ---
@@ -554,7 +552,7 @@ return fc(
 - SSR時はフォールバックだけ → あとから `/_defer/{name}` で本体を取得
 - 本体はCDNキャッシュ、この部分だけ `private, no-store`
 
-### 🎯 **「ログイン名だけ動的」なページも丸ごとCDNに乗せられる**
+### 「ログイン名だけ動的」なページも丸ごとCDNに乗せられる
 
 ---
 
@@ -572,7 +570,7 @@ return fc(
 - `localCacheTtl`（秒）で有効期限を指定 — HTTPの `Cache-Control` とは独立
 - キャッシュ破棄は `DEFER_CACHE_VERSION` のバンプ or `clearDeferCache()`
 
-### 🎯 **CDN（エッジ）+ ブラウザの2層で、動的部分の再取得も最小化できる**
+### CDNとブラウザの2層キャッシュで、動的部分の再取得も最小限にできる
 
 ---
 
@@ -583,9 +581,9 @@ return fc(
 
 # Tehilim：スキーマファーストなDBツールキット
 
-- 同じく自作の、**Prisma風ワークフロー**のDBツールキット
-- 方針は「**データは連想配列、型はPHPDoc**」— ORMのクラスマッピングをしない
-- 型安全はPHPStanに委ねる → **静的解析前提の設計**
+- 同じく自作の、Prisma風ワークフローのDBツールキット
+- 方針は「データは連想配列、型はPHPDoc」。ORMのクラスマッピングはしない
+- 型安全はPHPStanに委ねる、静的解析前提の設計
 
 ```bash
 composer require polidog/tehilim
@@ -594,7 +592,7 @@ vendor/bin/tehilim generate                # 型付きクライアント生成
 vendor/bin/tehilim migrate dev --name init # マイグレーション実行
 ```
 
-### 🎯 **スキーマから型付きクライアントを生成して使う**
+### スキーマから型付きクライアントを生成して使う
 
 ---
 
@@ -616,7 +614,7 @@ model Post {
 }
 ```
 
-### 🎯 **ほぼPrismaのschema。`?` でnull許可、`@relation` でリレーション**
+### ほぼPrismaのschema。`?` でnull許可、`@relation` でリレーション
 
 ---
 
@@ -652,12 +650,12 @@ $row = $db->user->findUnique([
 // PHPStanにはこう見えている:
 // array{email: string, name: string|null, id: int}|null
 
-echo $row['email']; // ✅ OK
-echo $row['age'];   // ❌ PHPStanがエラーにする
+echo $row['email']; // OK
+echo $row['age'];   // PHPStanがエラーにする
 ```
 
-- 行データは**プレーンな連想配列**、型情報は `@phpstan-type` で供給
-- PHPStan拡張が `select` の内容から**戻り値のarray shapeを絞り込む**
+- 行データはプレーンな連想配列で、型情報は `@phpstan-type` で供給する
+- PHPStan拡張が `select` の内容から戻り値のarray shapeを絞り込む
 
 ---
 
@@ -678,8 +676,8 @@ final class UsersPage extends PageComponent
 }
 ```
 
-- 型付きクライアントを**DIで注入**、`include` でリレーションも取得
-- dev環境だけプロファイラを注入 → **本番コードに計測機構が載らない**
+- 型付きクライアントをDIで注入して使う。`include` でリレーションも取れる
+- プロファイラはdev環境だけ注入するので、本番コードに計測機構が載らない
 
 ---
 
@@ -692,12 +690,12 @@ final class UsersPage extends PageComponent
 
 ## RelayerはAI協働を前提に設計してある
 
-- `RELAYER.md` — ファイル規約・各種契約・「やらないこと」の一覧を1ファイルに集約した**唯一の規約ソース**
-- `AGENTS.md` / `CLAUDE.md` は2行のポインタファイル → どのAIツールから入っても同じ規約に辿り着く
-- `relayer init` で `.claude/` に **relayer-routingスキル**と**relayer-reviewerサブエージェント**を生成
-- 生成コードは relayer-reviewer が**規約準拠かチェック**
+- 規約は `RELAYER.md` の1ファイルに集約。ファイル規約も各種契約も「やらないこと」も全部ここ
+- `AGENTS.md` / `CLAUDE.md` は2行のポインタファイルで、どのAIツールから入っても同じ規約に辿り着く
+- `relayer init` で `.claude/` にrelayer-routingスキルとrelayer-reviewerサブエージェントを生成する
+- 生成コードはrelayer-reviewerが規約に沿っているかチェックする
 
-### 🎯 **規約重視のフレームワークは、AIが迷わない**
+### 規約重視のフレームワークは、AIが迷わない
 
 ---
 
@@ -715,13 +713,13 @@ final class UsersPage extends PageComponent
 
 # まとめ
 
-- PHPは言語も、開発体験も、実行環境も**10年前とは別物**
-- だからPHPでフレームワークを作った — **Relayer**
+- PHPは言語も、開発体験も、実行環境も10年前とは別物
+- だからPHPでRelayerというフレームワークを作った
   - すべてがコンポーネント、Server Actions、Defer + CDNキャッシュ
-- DBは**Tehilim** — スキーマファースト + PHPStanで型安全
-- 展望は特にない。**楽しいから作る、それだけ**
+- DBはTehilim。スキーマファースト + PHPStanで型安全
+- 展望は特にない。楽しいから作る、それだけ
 
-### 🎯 **disる前に、一度触ってみてほしい**
+### disる前に、一度触ってみてほしい
 
 ---
 
@@ -729,7 +727,7 @@ final class UsersPage extends PageComponent
 # ぜひチュートリアルをやってみてください
 
 ### Todoアプリを作りながらRelayerを体験できます
-### 📝 https://relayer.polidog.jp/docs/todo-app
+### https://relayer.polidog.jp/docs/todo-app
 
 ---
 
