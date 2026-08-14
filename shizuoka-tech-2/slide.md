@@ -174,174 +174,32 @@ Shizuoka Tech #2
 ---
 
 <!-- _class: title -->
-# なぜ今PHPでフレームワークつくるのか？
+# RSC（Next.js）を推してたのに、なんで今年はPHPのフレームワーク？
 
 ---
 
-<!-- _class: title -->
-# PHPは昔からdisられているし、今もdisられている
+# Next.jsは好き。でも、しんどくなってきた
 
+- npmパッケージが重い。node_modulesと依存更新に疲れた
+- PHPならFrankenPHPでシングルバイナリ化までできる。デプロイはファイル1個
+- そして今のPHPは普通にモダン。型も静的解析も常駐ランタイムもある
+
+### だったら、あの開発体験をPHPで作ればいいのでは？
 
 ---
-
-<!-- _class: title -->
-![bg fit](./images/tweet_emutyworks.png)
-
----
-
-<!-- _class: title -->
-# だから今日は僕が作ったRelayerというPHPのフレームワークについての良さを語りたいと思います。
-
---- 
 
 # 今日のアジェンダ
 
-- なぜ今PHPなのか？
-- Relayerとは何か？
+- Relayerの機能紹介（デモあり）
 - DBを支えるTehilim
 - これからはAIと一緒に書く時代
 
 ## 今日のゴール
 
-1. **PHPの良さに気づいてもらえること**
+1. **PHPでもモダンな開発体験ができると知ってもらえること**
 2. **Relayerを使ってみたいと思ってもらえること**
 
 --- 
-
-# なぜ今PHPなのか？
-
-- はやい
-- シンプル
-- やばい
-
----
-
-# PHPの進化タイムライン
-
-- **2004年 PHP 5.0** — Zend Engine 2、OOPが本格化
-- **2014年 PHP 5.6** — PHP5系の最終版（disのイメージはだいたいこの辺で止まってる）
-- **2015年 PHP 7.0** — 実行エンジンを全面刷新（phpng）、一気に約2倍高速化
-- **2020年 PHP 8.0** — JITコンパイラ搭載、union型・match式・attributes
-- **2021年 PHP 8.1** — enum、readonly、Fiber
-- **2024年 PHP 8.4** — property hooks、非対称可視性
-
----
-
-# 書き方の違い：PHP5時代
-
-```php
-<?php
-class Money
-{
-    private $amount;
-    private $currency;
-
-    public function __construct($amount, $currency)
-    {
-        // 型がないので何が渡ってくるかは実行時のお楽しみ
-        $this->amount = $amount;
-        $this->currency = $currency;
-    }
-
-    public function getAmount()
-    {
-        return $this->amount;
-    }
-}
-```
-
-### 型なし・getter地獄・実行時エラー頼み
-
----
-
-# 書き方の違い：PHP8ならこう書ける
-
-```php
-<?php
-enum Currency: string
-{
-    case JPY = 'JPY';
-    case USD = 'USD';
-}
-
-final class Money
-{
-    public function __construct(
-        public readonly int $amount,
-        public readonly Currency $currency,
-    ) {}
-}
-
-$label = match ($money->currency) {
-    Currency::JPY => '円',
-    Currency::USD => 'ドル',
-};
-```
-
-### enum + readonly + constructor promotion + match式
-
----
-
-# で、どれぐらい速くなったのか？
-
-## WordPressでの実測（Cloudways調べ・WP 5.7）
-
-| PHP | 平均レスポンス | 1分間に捌いたリクエスト数 |
-|---|---|---|
-| 5.6 | 475ms | 1,311 |
-| 7.0 | 234ms | 2,682 |
-| 8.0 | **164ms** | **3,836** |
-
-### PHP 5.6 → 8.0 で<span class="impact">約3倍</span>速くなった。メモリ使用量は半分
-
----
-
-# エコシステムも別物：静的解析が標準に
-
-```php
-function sendMail(User $user): void { /* ... */ }
-
-function main(?User $user): void {
-    sendMail($user); // ← nullかもしれないのに渡してる
-}
-```
-
-```
-Parameter #1 $user of function sendMail expects User, User|null given.
-```
-
-- PHPStanが実行前に型チェックしてくれる。PHPDocでgenericsまで書けるし、CIで回すのが今の標準
-- Rectorを使えば古い書き方をPHP 8流に自動で書き換えられる。バージョンアップすら自動化できる
-
-### 開発体験はもう静的型付け言語並み
-
----
-
-# 実行環境も別物：常駐型ランタイム
-
-## 定番のdis「PHPはリクエストごとに死ぬ」→ もう過去の話
-
-- 従来（PHP-FPM）はリクエストごとに初期化して、返したら全部捨てる
-- 今はアプリをメモリに常駐させて捌く worker mode が主流
-  - Swoole / RoadRunner / Laravel Octane / FrankenPHP
-- ブートストラップのコストが消えるので、FPM比で数倍のスループットが出る
-
-## FrankenPHP（2023〜）
-
-- Caddy製・HTTP/3対応・単一バイナリでデプロイできる。2024年にPHP Foundation公式サポート入り
-
----
-
-<!-- _class: title -->
-# 言語も、開発体験も、実行環境も
-## 10年前とは<span class="impact">別物</span>
-
----
-
-<!-- _class: title -->
-# で、そのPHPで僕はフレームワークを作った
-
----
 
 # 今のPHPフレームワークへの不満
 
@@ -475,6 +333,50 @@ window.relayerIslands.register('Chart', (el, props) => {
 
 ---
 
+# ルーティング：ディレクトリがそのままURL
+
+```
+src/Pages/
+├── layout.psx          # 全ページ共通レイアウト
+├── page.psx            # /
+├── users/
+│   ├── page.psx        # /users
+│   └── [id]/page.psx   # /users/42
+├── (admin)/            # URLに出ないグループ化
+└── _private/           # ルーティング対象外
+```
+
+- `layout.psx` は階層ごとに重なる。Next.jsのlayoutと同じ感覚
+- URLの衝突は初回リクエストではなく `routes:compile` 時にエラーになる
+
+---
+
+# APIルート：route.php を置くだけ
+
+```php
+// src/Pages/api/users/route.php
+return [
+    'GET'  => fn (UserRepository $users): Response
+        => Response::json(['users' => $users->all()]),
+    'POST' => function (Request $req, UserRepository $users): Response {
+        $users->create($req->allPost());
+        return Response::json(['ok' => true], 201);
+    },
+];
+```
+
+- HTTPメソッドをキーにしたハンドラマップを返すだけ
+- 引数の型を見て Request・サービス・PageContext が自動で注入される
+
+---
+
+<!-- _class: title -->
+# デモ
+
+### relayer init から画面ができるまで
+
+---
+
 # Server Actionsみたいな機構もある
 
 ```php
@@ -516,6 +418,31 @@ if (!$result->success) {
 ```
 
 ### 失敗したらそのまま再描画、成功したらPRG。Server Actionsと相性がいい
+
+---
+
+# 認証もビルトイン
+
+```php
+// UserProviderを実装してDIに登録すると Authenticator が使える
+$ok = $auth->attempt($form['email'], $form['password']);
+```
+
+```php
+// ページ保護は属性で
+#[Auth]
+final class DashboardPage extends PageComponent { /* ... */ }
+```
+
+- `UserProvider` とパスワードハッシュは差し替え可能
+- セッションログインもトークン認証（Firebase / Cognito）も、同じ `#[Auth]` で書ける
+
+---
+
+<!-- _class: title -->
+# デモ
+
+### Server Actions + バリデーションでTodoアプリ
 
 ---
 
@@ -571,6 +498,40 @@ return fc(
 - キャッシュ破棄は `DEFER_CACHE_VERSION` のバンプ or `clearDeferCache()`
 
 ### CDNとブラウザの2層キャッシュで、動的部分の再取得も最小限にできる
+
+---
+
+# i18n：依存ゼロの多言語化
+
+```php
+// translations/ja.php
+return [
+    'home.title' => 'ようこそ',
+];
+```
+
+```php
+use Polidog\Relayer\I18n\Translator;
+
+return static fn (Translator $t) => (
+    <h1>{$t->trans('home.title')}</h1>
+);
+```
+
+- 設定ゼロなら英語単一ロケールのままコストなし
+- ロケール解決は URLプレフィックス → セッション → Cookie → Accept-Language の順
+
+---
+
+# 細かいところもひととおり揃えてある
+
+- ミドルウェアとCORS設定
+- ページ単位のスクリプト読み込み — 使うページだけ `$ctx->js('/assets/chart.js', defer: true)`
+- HTTPキャッシュ・ETag / HTTPクライアント / ロガー
+- サービスはSymfony DIコンテナでオートワイヤ
+- プロファイラ（dev環境限定）、CLIコマンド、.envカスケード
+
+### 全部ドキュメントに書いてあります → https://relayer.polidog.jp/
 
 ---
 
@@ -681,6 +642,13 @@ final class UsersPage extends PageComponent
 
 ---
 
+<!-- _class: title -->
+# デモ
+
+### スキーマを書いてマイグレーション、画面に出すまで
+
+---
+
 # これからはAIと一緒に書く時代
 
 ## RelayerはAI協働を前提に設計してある
@@ -696,13 +664,12 @@ final class UsersPage extends PageComponent
 
 # まとめ
 
-- PHPは言語も、開発体験も、実行環境も10年前とは別物
-- だからPHPでRelayerというフレームワークを作った
+- PHPでもRSCみたいなコンポーネントベースの開発体験が欲しくて、Relayerを作った
   - すべてコンポーネントで書けて、Server Actionsみたいな機構もある。Defer + CDNキャッシュ
 - DBはTehilim。スキーマファースト + PHPStanで型安全
 - 規約重視だからAIが迷わない。AI時代を前提にしたフレームワーク
 
-### disる前に、一度触ってみてほしい
+### 気になったら、一度触ってみてください
 
 ---
 
@@ -716,11 +683,6 @@ final class UsersPage extends PageComponent
 
 # 参考リンク
 
-- [PHP 7.0.0 Release Announcement](https://www.php.net/releases/7_0_0.php)
-- [WordPress Performance on PHP Versions (Cloudways)](https://www.cloudways.com/blog/wordpress-performance-on-php-versions/)
-- [PHP Benchmarks (Kinsta)](https://kinsta.com/blog/php-benchmarks/)
-- [PHPStan](https://phpstan.org/)
-- [Rector](https://getrector.com/)
-- [FrankenPHP](https://frankenphp.dev/)
 - [Relayer Documentation](https://relayer.polidog.jp/)
+- [PHPStan](https://phpstan.org/)
 - [PHP Manual: session_cache_limiter](https://www.php.net/manual/en/function.session-cache-limiter.php)
