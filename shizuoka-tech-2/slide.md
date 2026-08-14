@@ -64,6 +64,11 @@ style: |
   section.title {
     align-content: center;
   }
+  /* タイトルページ内の画像（QRコードなど）を中央揃え */
+  section.title img {
+    display: block;
+    margin: 0 auto;
+  }
   /* QRコードを右下に配置 */
   .qr-container {
     position: absolute;
@@ -80,6 +85,57 @@ style: |
     background-color: #fff3cd;
     padding: 0.2em 0.4em;
     border-radius: 0.2em;
+  }
+  /* アーキテクチャ図 */
+  .arch {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    margin-top: 0.8em;
+    font-size: 0.72em;
+    text-align: center;
+    line-height: 1.35;
+  }
+  .arch-row {
+    border: 2px solid #999;
+    border-radius: 0.4em;
+    padding: 0.4em 0.6em;
+    background: #f7f7f7;
+  }
+  .arch-arrow {
+    color: #888;
+    font-size: 0.85em;
+    line-height: 1;
+  }
+  .arch-relayer {
+    border: 3px solid #2b6cb0;
+    border-radius: 0.4em;
+    padding: 0.45em 0.6em;
+    background: #ebf4ff;
+  }
+  .arch-label {
+    font-weight: bold;
+    color: #2b6cb0;
+    margin-bottom: 0.35em;
+  }
+  .arch-cols {
+    display: flex;
+    gap: 0.35em;
+  }
+  .arch-cols + .arch-cols {
+    margin-top: 0.35em;
+  }
+  .arch-cols > div {
+    flex: 1;
+    border: 1.5px solid #2b6cb0;
+    border-radius: 0.3em;
+    padding: 0.35em 0.4em;
+    background: #fff;
+  }
+  .arch-cols > .arch-usephp {
+    border-color: #ff6b6b;
+    background: #fff3cd;
+    font-weight: bold;
   }
 ---
 <!-- _class: title -->
@@ -105,13 +161,15 @@ Shizuoka Tech #2
 ---
 
 <!-- _class: title -->
-# 去年、React Server Compnentsの話をしました
+# 去年、React Server Componentsの話をしました
 
+<p style="text-align: center;">https://speakerdeck.com/polidog/react-server-components</p>
 
----
+<div class="qr-container">
 
-<!-- _class: title -->
-https://speakerdeck.com/polidog/react-server-components
+![w:200](./images/qr-rsc-speakerdeck.png)
+
+</div>
 
 ---
 
@@ -132,38 +190,23 @@ https://speakerdeck.com/polidog/react-server-components
 ---
 
 <!-- _class: title -->
-# いまでもこういうPHPをdisる発言をみかける
-
-
----
-
-<!-- _class: title -->
 # だから今日は僕が作ったRelayerというPHPのフレームワークについての良さを語りたいと思います。
 
 --- 
 
 # 今日のアジェンダ
 
-
 - なぜ今PHPなのか？
-- Relayerとはないか？
-- DBを支えるtehilim
+- Relayerとは何か？
+- DBを支えるTehilim
 - 今後の展望について
 
----
-
-# 今日のゴール
+## 今日のゴール
 
 1. **PHPの良さに気づいてもらえること**
 2. **Relayerを使ってみたいと思ってもらえること**
 
 --- 
-
-<!-- _class: title -->
-# なぜ今PHPなのか?
-
-
----
 
 # なぜ今PHPなのか？
 
@@ -243,11 +286,6 @@ $label = match ($money->currency) {
 
 # で、どれぐらい速くなったのか？
 
-## 公式発表
-
-- PHP 7.0 は PHP 5.6 の**最大2倍**のスループット、メモリ使用量は**半分**
-- PHP 8.0 で JIT コンパイラ搭載、CPUバウンドな処理はさらに高速化
-
 ## WordPressでの実測（Cloudways調べ・WP 5.7）
 
 | PHP | 平均レスポンス | 1分間に捌いたリクエスト数 |
@@ -256,29 +294,11 @@ $label = match ($money->currency) {
 | 7.0 | 234ms | 2,682 |
 | 8.0 | **164ms** | **3,836** |
 
----
-
-<!-- _class: title -->
-# PHP 5.6 → 8.0 で <span class="impact">約3倍</span> 速くなった
+### 🎯 **PHP 5.6 → 8.0 で<span class="impact">約3倍</span>高速化、メモリは半分**
 
 ---
 
-<!-- _class: title -->
-# 進化したのは本体だけじゃない
-## エコシステムも別物になった
-
----
-
-# 静的解析ツールの進化
-
-- **2015年 Phan** — PHP作者 Rasmus Lerdorf らが開発、PHP 7のASTベース解析
-- **2016年 PHPStan** — 「実行せずにバグを見つける」を普及させた立役者
-- **2016年 Psalm** — Vimeo製、型カバレッジ計測やtaint解析（セキュリティ）
-- **2017年 Rector** — 静的解析を応用した**自動リファクタリング**
-
----
-
-# PHPStan：実行する前にバグが見つかる
+# エコシステムも別物：静的解析が標準に
 
 ```php
 function sendMail(User $user): void { /* ... */ }
@@ -289,97 +309,28 @@ function main(?User $user): void {
 ```
 
 ```
- ------ ----------------------------------------------------------
-  Line   main.php
- ------ ----------------------------------------------------------
-  6      Parameter #1 $user of function sendMail expects User,
-         User|null given.
+Parameter #1 $user of function sendMail expects User, User|null given.
 ```
 
-- レベル0〜10で厳しさを段階的に上げられる → レガシーにも導入しやすい
-- CIで回すのが現代PHPの標準スタイル
+- **PHPStan** — 実行前に型チェック、PHPDocでgenericsまで解析。CIで回すのが現代の標準
+- **Rector** — PHP 5系の古い書き方をPHP 8流に**自動変換**。バージョンアップすら自動化
+
+### 🎯 **開発体験は静的型付け言語並み**
 
 ---
 
-# PHPDocでgenericsまで書ける
+# 実行環境も別物：常駐型ランタイム
 
-```php
-/**
- * @template T
- * @param array<int, T> $items
- * @return T|null
- */
-function first(array $items): mixed
-{
-    return $items[0] ?? null;
-}
+## 定番のdis「PHPはリクエストごとに死ぬ」→ もう過去の話
 
-$user = first($users); // ← PHPStanはUser型だと知っている
-```
-
-- `array<int, User>` のような詳細な型指定もチェックされる
-- 実行時のPHPは変わらないのに、**開発体験は静的型付け言語並み**
-
-### 🎯 **「IDEで入力支援が無い」どころか、実行前に型チェックまでされる時代**
-
----
-
-# Rector：バージョンアップすら自動化
-
-```bash
-composer require rector/rector --dev
-vendor/bin/rector process src --set php80
-```
-
-- PHP 5系の古い書き方をPHP 8の書き方へ**自動変換**
-- フレームワークのメジャーバージョンアップにも対応
-- 「レガシーPHPつらい」→ **機械に書き直させる**時代に
-
----
-
-<!-- _class: title -->
-# そして、実行環境も別物になった
-
----
-
-# 定番のdis：「PHPはリクエストごとに死ぬ」
-
-## 従来の実行モデル（CGI → mod_php → PHP-FPM）
-
-- リクエストが来るたびに**アプリを初期化して、返したら全部捨てる**
-- フレームワークのブートストラップを毎回やり直し
-- 「だからPHPは遅い」「常駐できないおもちゃ」と言われてきた
-
-### 🤔 **……それ、もう過去の話です**
-
----
-
-# 常駐型ランタイムの時代へ
-
-- **Swoole**（2013〜） — 非同期・コルーチンの先駆け
-- **RoadRunner**（2018〜） — Go製アプリケーションサーバー
-- **Laravel Octane**（2021〜） — Laravel公式の常駐化サポート
-- **FrankenPHP**（2023〜） — Caddyベースのモダンランタイム
-
-## worker modeの仕組み
-
-- アプリを**起動したままメモリに常駐**させてリクエストを捌く
+- 従来（PHP-FPM）はリクエストごとに初期化して、返したら全部捨てる
+- 今は**アプリをメモリに常駐**させて捌く worker mode が主流
+  - Swoole / RoadRunner / Laravel Octane / **FrankenPHP**
 - ブートストラップコストがゼロに → FPM比で**数倍のスループット**
 
----
+## FrankenPHP（2023〜）
 
-# FrankenPHP
-
-```bash
-# Docker イメージ1枚で本番運用
-docker run -v $PWD:/app/public frankenphp/frankenphp
-```
-
-- **Caddy（Go製）にPHPを埋め込んだ**モダンランタイム
-- **HTTP/2・HTTP/3・Early Hints** を標準サポート、HTTPSも自動
-- worker modeでLaravel / Symfonyをそのまま高速化
-- アプリを埋め込んだ**単一バイナリ**も作れる → デプロイはファイル1個
-- 2024年に**PHP Foundation公式サポート**入り
+- Caddy製・HTTP/3対応・単一バイナリでデプロイ、2024年に**PHP Foundation公式サポート**入り
 
 ---
 
@@ -421,6 +372,30 @@ composer require polidog/relayer
 vendor/bin/relayer init
 php -S 127.0.0.1:8000 -t public
 ```
+
+---
+
+# Relayerの技術構成
+
+<div class="arch">
+  <div class="arch-row">🌐 <strong>ブラウザ</strong> — HTML + usephp.js（プログレッシブエンハンスメント）/ React Islands</div>
+  <div class="arch-arrow">▲▼ HTTP</div>
+  <div class="arch-row">☁️ <strong>CDN</strong> — Defer + Cache-Control でキャッシュを最大化</div>
+  <div class="arch-arrow">▲▼</div>
+  <div class="arch-relayer">
+    <div class="arch-label">Relayer 本体（PHP）</div>
+    <div class="arch-cols">
+      <div>🗂 <strong>ルーティング</strong><br>src/Pages/ がそのままURLに</div>
+      <div>⚡ <strong>Server Actions</strong><br>フォーム処理 + CSRF自動</div>
+      <div>✅ <strong>Validation</strong><br>Zodライクなスキーマ検証</div>
+    </div>
+    <div class="arch-cols">
+      <div class="arch-usephp">🧩 <strong>usePHP</strong> — .psx をPHPコードにコンパイルするビュー層（← まずここから話します）</div>
+    </div>
+  </div>
+  <div class="arch-arrow">▲▼ SQL</div>
+  <div class="arch-row">🗄 <strong>Tehilim</strong> — スキーマファーストなDBツールキット（後半で解説）</div>
+</div>
 
 ---
 
@@ -587,7 +562,7 @@ return fc(
 
 ## 2段階のキャッシュ
 
-- **L1: インメモリ** — ページ生存期間中は常に有効（フルリロードで消える）
+- **L1: インメモリ** — opt-in不要で常時動作、ページ遷移・リロードで消える（TTLなし・LRUで最大64件）
 - **L2: localStorage** — リロード・タブをまたいで保持（opt-in）
 
 ```php
