@@ -188,18 +188,15 @@ Shizuoka Tech #2
 
 ---
 
-# 今日のアジェンダ
+<!-- _class: title -->
 
-- Relayerの機能紹介（デモあり）
-- DBを支えるTehilim
-- これからはAIと一緒に書く時代
+<p style="text-align: center; color: #666;">フロントエンドは、いつからかJavaScript / TypeScriptだけのものになった</p>
 
-## 今日のゴール
+# 今こそ、Hypertext Preprocessorとしての PHPの価値を見直すべきでは？
 
-1. **PHPでもモダンな開発体験ができると知ってもらえること**
-2. **Relayerを使ってみたいと思ってもらえること**
+<p style="text-align: center; color: #666;">PHPは最初から、ハイパーテキストを作るための言語だった</p>
 
---- 
+---
 
 # 今のPHPフレームワークへの不満
 
@@ -299,6 +296,71 @@ return fn () => H::section(className: 'card', children: [
 
 ---
 
+# コンポーネントもただの関数
+
+```php
+// src/Components/Card.psx
+return fn (array $props) => (
+    <div className="card">
+        <h3>{$props['title']}</h3>
+        <div>{$props['children'] ?? null}</div>
+    </div>
+);
+```
+
+```php
+use App\Components\Card;
+return fn () => <Card title="お知らせ"><p>本文…</p></Card>;
+```
+
+- PascalCaseタグがコンポーネント。`use` 文でFQCNを解決する
+- propsは連想配列、子要素は `children` で受け取る
+- 条件分岐は三項演算子、ループは `array_map`。全部ただのPHP式
+
+---
+
+# Hooksもある：useState
+
+```php
+return fc(function () {
+    [$count, $setCount] = useState(0);
+
+    return (
+        <div>
+            <span>Count: {$count}</span>
+            <button onClick={fn () => $setCount($count + 1)}>+</button>
+        </div>
+    );
+});
+```
+
+- `fc()` でラップした関数コンポーネントの中でだけHooksが使える
+- セッターは `Action` を返して `onClick` に紐づく。実体はサーバーへのリクエスト
+
+### 見た目はReactのカウンター。でも状態はサーバー側にある
+
+---
+
+# useEffectと状態の保存先
+
+```php
+useEffect(function () use ($tab) {
+    error_log("tab: {$tab}");
+    return fn () => error_log('cleanup');
+}, [$tab]); // $tabが変わったときだけ実行
+```
+
+- depsの意味はReactと同じ：`null` は毎回、`[]` は初回だけ、値は変更時
+- `useRouter()` で現在URLや `[id]` の動的セグメントも取れる
+
+| StorageType | 状態の保存先 |
+|---|---|
+| `Session`（既定） | サーバーセッション。ページ遷移をまたいで残る |
+| `Memory` | リクエストごとにリセット |
+| `Snapshot` | 署名付きでHTMLに埋め込む（サーバーはステートレス） |
+
+---
+
 # JavaScriptがオフでも動く
 
 - usephp.js がプログレッシブエンハンスメントで強化する設計
@@ -370,13 +432,6 @@ return [
 
 ---
 
-<!-- _class: title -->
-# デモ
-
-### relayer init から画面ができるまで
-
----
-
 # Server Actionsみたいな機構もある
 
 ```php
@@ -439,13 +494,6 @@ final class DashboardPage extends PageComponent { /* ... */ }
 
 ---
 
-<!-- _class: title -->
-# デモ
-
-### Server Actions + バリデーションでTodoアプリ
-
----
-
 # 意外と難しい：アプリをCDNに乗せる
 
 ## Cookieを吐いた瞬間、キャッシュされない
@@ -501,6 +549,29 @@ return fc(
 
 ---
 
+# ETagキャッシュ：変わってなければ304
+
+```php
+#[Cache(maxAge: 60, public: true, etagKey: 'user-list')]
+final class UsersPage extends PageComponent { /* ... */ }
+```
+
+```php
+// データ更新時にEtagStoreの値を書き換えるだけ
+public function save(User $user): void {
+    // ...永続化処理...
+    $this->etags->set('user-list', sha1((string) microtime(true)));
+}
+```
+
+- `If-None-Match` が一致したら、ページ描画もDBアクセスもせずに304を返す
+- デプロイでしか変わらないページは静的な `etag`、データ駆動ページは `etagKey`
+- `Last-Modified` / `Vary` もページ単位で宣言できる
+
+### TTLが切れたあとの再検証を、本文を作らず安く返せる
+
+---
+
 # i18n：依存ゼロの多言語化
 
 ```php
@@ -527,7 +598,7 @@ return static fn (Translator $t) => (
 
 - ミドルウェアとCORS設定
 - ページ単位のスクリプト読み込み — 使うページだけ `$ctx->js('/assets/chart.js', defer: true)`
-- HTTPキャッシュ・ETag / HTTPクライアント / ロガー
+- HTTPクライアント / ロガー
 - サービスはSymfony DIコンテナでオートワイヤ
 - プロファイラ（dev環境限定）、CLIコマンド、.envカスケード
 
@@ -639,13 +710,6 @@ final class UsersPage extends PageComponent
 
 - 型付きクライアントをDIで注入して使う。`include` でリレーションも取れる
 - プロファイラはdev環境だけ注入するので、本番コードに計測機構が載らない
-
----
-
-<!-- _class: title -->
-# デモ
-
-### スキーマを書いてマイグレーション、画面に出すまで
 
 ---
 
