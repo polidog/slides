@@ -211,44 +211,10 @@ Shizuoka Tech #2
 
 ---
 
-# Relayer
+<!-- _class: title -->
+# コア技術：usePHP
 
-## Next.js App Router風の規約で書けるPHPフルスタックフレームワーク
-
-- ルーティング・API・認証・キャッシュ・DBをひとつのbootエントリにまとめる規約重視の設計
-- `src/Pages/` のディレクトリ構成がそのままURLになる（`[id]` は動的セグメント）
-- すべてコンポーネントで書ける
-- Server Actionsみたいな機構がある
-
-```bash
-composer require polidog/relayer
-vendor/bin/relayer init
-php -S 127.0.0.1:8000 -t public
-```
-
----
-
-# Relayerの技術構成
-
-<div class="arch">
-  <div class="arch-row"><strong>ブラウザ</strong> — HTML + usephp.js（プログレッシブエンハンスメント）/ React Islands</div>
-  <div class="arch-arrow">▲▼ HTTP</div>
-  <div class="arch-row"><strong>CDN</strong> — Defer + Cache-Control でキャッシュを最大化</div>
-  <div class="arch-arrow">▲▼</div>
-  <div class="arch-relayer">
-    <div class="arch-label">Relayer 本体（PHP）</div>
-    <div class="arch-cols">
-      <div><strong>ルーティング</strong><br>src/Pages/ がそのままURLに</div>
-      <div><strong>Server Actions</strong><br>フォーム処理 + CSRF自動</div>
-      <div><strong>Validation</strong><br>Zodライクなスキーマ検証</div>
-    </div>
-    <div class="arch-cols">
-      <div class="arch-usephp"><strong>usePHP</strong> — .psx をPHPコードにコンパイルするビュー層（← まずここから話します）</div>
-    </div>
-  </div>
-  <div class="arch-arrow">▲▼ SQL</div>
-  <div class="arch-row"><strong>Tehilim</strong> — スキーマファーストなDBツールキット（後半で解説）</div>
-</div>
+### ReactライクにPHPを書けるようにするビュー層。まずはここから
 
 ---
 
@@ -296,10 +262,10 @@ return fn () => H::section(className: 'card', children: [
 
 ---
 
-# コンポーネントもただの関数
+# コンポーネント：関数スタイルとクラススタイル
 
 ```php
-// src/Components/Card.psx
+// 関数スタイル — src/Components/Card.psx
 return fn (array $props) => (
     <div className="card">
         <h3>{$props['title']}</h3>
@@ -309,13 +275,38 @@ return fn (array $props) => (
 ```
 
 ```php
-use App\Components\Card;
-return fn () => <Card title="お知らせ"><p>本文…</p></Card>;
+// クラススタイル — コンストラクタで依存が自動注入される
+final class UserDetailPage extends PageComponent
+{
+    public function __construct(private readonly UserRepository $users) {}
+    public function render(): Element
+    {
+        return <h1>{$this->users->find($this->getParam('id'))->name}</h1>;
+    }
+}
 ```
 
-- PascalCaseタグがコンポーネント。`use` 文でFQCNを解決する
-- propsは連想配列、子要素は `children` で受け取る
-- 条件分岐は三項演算子、ループは `array_map`。全部ただのPHP式
+- どちらもPascalCaseタグで使える。propsは連想配列、子要素は `children`。シンプルなら関数、依存が多ければクラス
+
+---
+
+# 条件分岐もループも、ただのPHP式
+
+## Twig/Bladeのような専用構文（`{% if %}` / `@foreach`）はない
+
+- 条件分岐 → 値を返す三項演算子で書く
+
+```php
+{$loggedIn ? <a href="/logout">Logout</a> : <a href="/login">Login</a>}
+```
+
+- ループ → 要素の配列を返す `array_map` で書く
+
+```php
+<ul>{array_map(fn ($x) => <li>{$x['name']}</li>, $items)}</ul>
+```
+
+### JSXと同じ流儀。`{ }` に書けるのは式だけ。新しいテンプレート構文を覚えなくていい
 
 ---
 
@@ -324,7 +315,6 @@ return fn () => <Card title="お知らせ"><p>本文…</p></Card>;
 ```php
 return fc(function () {
     [$count, $setCount] = useState(0);
-
     return (
         <div>
             <span>Count: {$count}</span>
@@ -335,7 +325,7 @@ return fc(function () {
 ```
 
 - `fc()` でラップした関数コンポーネントの中でだけHooksが使える
-- セッターは `Action` を返して `onClick` に紐づく。実体はサーバーへのリクエスト
+- セッターは `onClick` に紐づく。実体はサーバーへのリクエスト
 
 ### 見た目はReactのカウンター。でも状態はサーバー側にある
 
@@ -377,7 +367,6 @@ useEffect(function () use ($tab) {
 use Polidog\Relayer\React\Island;
 return fn () => (
     <section>
-        <h1>Dashboard</h1>
         {Island::mount('Chart', ['points' => $data])}
     </section>
 );
@@ -390,8 +379,53 @@ window.relayerIslands.register('Chart', (el, props) => {
 });
 ```
 
-- チャートやエディタなど、複雑なUIが必要な場所だけReactをマウントできる
-- propsは `data-react-props` にJSONで埋め込まれて渡る
+- チャートやエディタなど、複雑なUIが必要な場所だけReactをマウントできる。propsは `data-react-props` にJSONで渡る
+
+---
+
+<!-- _class: title -->
+# このusePHPを核にしたフルスタックフレームワークが、Relayer
+
+---
+
+# Relayer
+
+## Next.js App Router風の規約で書けるPHPフルスタックフレームワーク
+
+- ルーティング・API・認証・キャッシュ・DBをひとつのbootエントリにまとめる規約重視の設計
+- `src/Pages/` のディレクトリ構成がそのままURLになる（`[id]` は動的セグメント）
+- ビューはusePHP。すべてコンポーネントで書ける
+- Server Actionsみたいな機構がある
+
+```bash
+composer require polidog/relayer
+vendor/bin/relayer init
+php -S 127.0.0.1:8000 -t public
+```
+
+---
+
+# Relayerの技術構成
+
+<div class="arch">
+  <div class="arch-row"><strong>ブラウザ</strong> — HTML + usephp.js（プログレッシブエンハンスメント）/ React Islands</div>
+  <div class="arch-arrow">▲▼ HTTP</div>
+  <div class="arch-row"><strong>CDN</strong> — Defer + Cache-Control でキャッシュを最大化</div>
+  <div class="arch-arrow">▲▼</div>
+  <div class="arch-relayer">
+    <div class="arch-label">Relayer 本体（PHP）</div>
+    <div class="arch-cols">
+      <div><strong>ルーティング</strong><br>src/Pages/ がそのままURLに</div>
+      <div><strong>Server Actions</strong><br>フォーム処理 + CSRF自動</div>
+      <div><strong>Validation</strong><br>Zodライクなスキーマ検証</div>
+    </div>
+    <div class="arch-cols">
+      <div class="arch-usephp"><strong>usePHP</strong> — .psx をPHPコードにコンパイルするビュー層（← さっき説明したやつ）</div>
+    </div>
+  </div>
+  <div class="arch-arrow">▲▼ SQL</div>
+  <div class="arch-row"><strong>Tehilim</strong> — スキーマファーストなDBツールキット（後半で解説）</div>
+</div>
 
 ---
 
@@ -479,22 +513,25 @@ if (!$result->success) {
 # 認証もビルトイン
 
 ```php
-// UserProviderを実装してDIに登録すると Authenticator が使える
-$ok = $auth->attempt($form['email'], $form['password']);
-```
-
-```php
-// ページ保護は属性で
+// クラススタイル — 属性でページ保護。#[Auth(roles: ['admin'])] でロール必須も
 #[Auth]
 final class DashboardPage extends PageComponent { /* ... */ }
 ```
 
-- `UserProvider` とパスワードハッシュは差し替え可能
-- セッションログインもトークン認証（Firebase / Cognito）も、同じ `#[Auth]` で書ける
+```php
+// 関数スタイル — requireAuth()。未認証ならリダイレクト
+return function (PageContext $ctx): Closure {
+    $user = $ctx->requireAuth(); // requireAuth(['admin']) でロール必須
+    return fn () => <h1>ようこそ {$user->displayName}</h1>;
+};
+```
+
+- `UserProvider` を実装してDIに登録すると `$auth->attempt($email, $password)` でログインできる
+- セッションログインもトークン認証（Firebase / Cognito）も、同じ仕組みで書ける
 
 ---
 
-# 意外と難しい：アプリをCDNに乗せる
+# アプリをCDNに乗せる
 
 ## Cookieを吐いた瞬間、キャッシュされない
 
@@ -512,20 +549,16 @@ final class DashboardPage extends PageComponent { /* ... */ }
 # Deferコンポーネント
 
 ```php
-// UserHeader.psx — 本体
-return fn (array $props) => (
-    <header>こんにちは {$_SESSION['user']['name'] ?? 'ゲスト'} さん</header>
-);
-// UserHeaderDeferred.psx — ラッパー
-use Polidog\UsePhp\Component\Defer;
+// UserHeaderDeferred.psx — ログイン名を出すUserHeaderをDeferでラップ
 return fc(
     fn (array $props) => <UserHeader />,
     defer: new Defer(name: 'user-header', cacheControl: 'private, no-store'),
 );
 ```
 
-- SSR時はフォールバックだけ → あとから `/_defer/{name}` で本体を取得
-- 本体はCDNキャッシュ、この部分だけ `private, no-store`
+- ページには `<UserHeaderDeferred fallback={<HeaderSkeleton />} />` と置く
+- SSR時はfallbackだけ描画 → usephp.jsがあとから `GET /_defer/user-header` で本体を取得
+- ページ本体はCDNキャッシュ、この部分だけ `private, no-store`
 
 ### 「ログイン名だけ動的」なページも丸ごとCDNに乗せられる
 
@@ -549,53 +582,10 @@ return fc(
 
 ---
 
-# ETagキャッシュ：変わってなければ304
-
-```php
-#[Cache(maxAge: 60, public: true, etagKey: 'user-list')]
-final class UsersPage extends PageComponent { /* ... */ }
-```
-
-```php
-// データ更新時にEtagStoreの値を書き換えるだけ
-public function save(User $user): void {
-    // ...永続化処理...
-    $this->etags->set('user-list', sha1((string) microtime(true)));
-}
-```
-
-- `If-None-Match` が一致したら、ページ描画もDBアクセスもせずに304を返す
-- デプロイでしか変わらないページは静的な `etag`、データ駆動ページは `etagKey`
-- `Last-Modified` / `Vary` もページ単位で宣言できる
-
-### TTLが切れたあとの再検証を、本文を作らず安く返せる
-
----
-
-# i18n：依存ゼロの多言語化
-
-```php
-// translations/ja.php
-return [
-    'home.title' => 'ようこそ',
-];
-```
-
-```php
-use Polidog\Relayer\I18n\Translator;
-
-return static fn (Translator $t) => (
-    <h1>{$t->trans('home.title')}</h1>
-);
-```
-
-- 設定ゼロなら英語単一ロケールのままコストなし
-- ロケール解決は URLプレフィックス → セッション → Cookie → Accept-Language の順
-
----
-
 # 細かいところもひととおり揃えてある
 
+- HTTPキャッシュ — ページ単位で `Cache-Control` / ETagを宣言。`If-None-Match` が一致すれば描画もDBアクセスもせず304
+- i18n — 依存ゼロの多言語化。ロケール解決はURLプレフィックス → セッション → Cookie → Accept-Language
 - ミドルウェアとCORS設定
 - ページ単位のスクリプト読み込み — 使うページだけ `$ctx->js('/assets/chart.js', defer: true)`
 - HTTPクライアント / ロガー
@@ -750,3 +740,8 @@ final class UsersPage extends PageComponent
 - [Relayer Documentation](https://relayer.polidog.jp/)
 - [PHPStan](https://phpstan.org/)
 - [PHP Manual: session_cache_limiter](https://www.php.net/manual/en/function.session-cache-limiter.php)
+
+---
+
+<!-- _class: title -->
+# ご清聴ありがとうございました
