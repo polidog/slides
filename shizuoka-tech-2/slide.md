@@ -204,7 +204,6 @@ Shizuoka Tech #2
 - MVCの構造は20年ずっと変わっていない
 - Twig / Bladeはしょせんテンプレートエンジンで、JSX/TSXの表現力に勝てない
 - コンポーネント指向で書けないから、結局「SPA + API」構成に逃げがち
-- つまりフロントエンドとの親和性が低い
 
 ---
 
@@ -381,7 +380,7 @@ window.relayerIslands.register('Chart', (el, props) => {
 
 - ルーティング・API・認証・キャッシュ・DBをひとつのbootエントリにまとめる規約重視の設計
 - `src/Pages/` のディレクトリ構成がそのままURLになる（`[id]` は動的セグメント）
-- ビューはusePHP。すべてコンポーネントで書ける
+- ビュー層にusePHPを使うので、すべてコンポーネントで書ける
 - Server Actionsみたいな機構がある
 
 ```bash
@@ -518,22 +517,12 @@ return function (PageContext $ctx): Closure {
 
 ---
 
-# アプリをCDNに乗せる
-
-## Cookieを吐いた瞬間、キャッシュされない
-
-- Cloudflareは `Set-Cookie` 付きレスポンスを問答無用でBYPASSする
-- PHPはセッションを開始すると `Cache-Control: no-store` を勝手に注入する
-- 「1ページでもセッションを使うと全ページキャッシュ不可」になりがち
-
-## Relayerの答え
-
-- セッションを遅延起動にして、状態を触らないページでは `Set-Cookie` を吐かない
-- `max-age`（ブラウザ）と `s-maxage`（CDN）を分けて設定できる
-
----
-
 # Deferコンポーネント
+
+## 「ログイン名だけ動的」なページ、CDNに乗せられますか？
+
+- セッションを使った瞬間 `Set-Cookie` が付いて、CDNは問答無用でBYPASSする
+- ログイン名の1行のために、ページ全体がキャッシュ不可になる
 
 ```php
 // UserHeaderDeferred.psx — ログイン名を出すUserHeaderをDeferでラップ
@@ -547,7 +536,7 @@ return fc(
 - SSR時はfallbackだけ描画 → usephp.jsがあとから `GET /_defer/user-header` で本体を取得
 - ページ本体はCDNキャッシュ、この部分だけ `private, no-store`
 
-### 「ログイン名だけ動的」なページも丸ごとCDNに乗せられる
+### 動的な部分だけを切り出せば、ページは丸ごとCDNに乗る
 
 ---
 
@@ -569,7 +558,7 @@ return fc(
 
 # 細かいところもひととおり揃えてある
 
-- HTTPキャッシュ — ページ単位で `Cache-Control` / ETagを宣言。`If-None-Match` が一致すれば描画もDBアクセスもせず304
+- HTTPキャッシュ — ページ単位で `Cache-Control` / ETagを宣言。`If-None-Match` が一致すれば描画もDBアクセスもせず304。セッションは遅延起動なので、状態を触らないページは `Set-Cookie` を吐かずCDNに乗る
 - i18n — 依存ゼロの多言語化。ロケール解決はURLプレフィックス → セッション → Cookie → Accept-Language
 - ミドルウェアとCORS設定
 - ページ単位のスクリプト読み込み — 使うページだけ `$ctx->js('/assets/chart.js', defer: true)`
