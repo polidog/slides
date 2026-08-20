@@ -153,10 +153,10 @@ Shizuoka Tech #2
 ![bg right:42%](./images/polidog.jpg)
 
 - @polidog
+- Webアプリケーション開発者
 - パーティーハード株式会社という開発会社を経営しています。
 - 清水市出身、神奈川県在住
 - 5歳と1歳の男の子のパパ
-- Symfony(PHP)が好き
 
 ---
 
@@ -181,6 +181,7 @@ Shizuoka Tech #2
 # Next.jsは好き。でも、しんどくなってきた
 
 - npmパッケージが重い。node_modulesと依存更新に疲れた
+- RSCはサーバーで動く。ブラウザ前提のパッケージは `window is not defined` で壊れるし、常駐プロセスなのでモジュール内にstateを持つライブラリはメモリリークの温床になる
 - PHPならFrankenPHPでシングルバイナリ化までできる。デプロイはファイル1個
 - そして今のPHPは普通にモダン。型も静的解析も常駐ランタイムもある
 
@@ -189,8 +190,6 @@ Shizuoka Tech #2
 ---
 
 <!-- _class: title -->
-
-<p style="text-align: center; color: #666;">フロントエンドは、いつからかJavaScript / TypeScriptだけのものになった</p>
 
 # 今こそ、Hypertext Preprocessorとしての PHPの価値を見直すべきでは？
 
@@ -203,22 +202,20 @@ Shizuoka Tech #2
 ## Controllerで値を集めて、viewに渡す。以上。
 
 - MVCの構造は20年ずっと変わっていない
-- Twig / Bladeはしょせんテンプレート言語で、JSX/TSXの表現力に勝てない
+- Twig / Bladeはしょせんテンプレートエンジンで、JSX/TSXの表現力に勝てない
 - コンポーネント指向で書けないから、結局「SPA + API」構成に逃げがち
 - つまりフロントエンドとの親和性が低い
-
-### 去年RSCを布教した身としては、PHPでもあの開発体験が欲しい
 
 ---
 
 <!-- _class: title -->
-# コア技術：usePHP
+# コア技術のusePHP
 
-### ReactライクにPHPを書けるようにするビュー層。まずはここから
+### ReactライクにPHPを書けるようにするライブラリ。まずはここから
 
 ---
 
-# usePHP：ReactライクにかけるPHP
+# ReactライクにかけるPHP、usePHP
 
 ## 独自拡張子 `.psx`
 
@@ -262,7 +259,7 @@ return fn () => H::section(className: 'card', children: [
 
 ---
 
-# コンポーネント：関数スタイルとクラススタイル
+# コンポーネントは関数スタイルとクラススタイル
 
 ```php
 // 関数スタイル — src/Components/Card.psx
@@ -310,7 +307,7 @@ final class UserDetailPage extends PageComponent
 
 ---
 
-# Hooksもある：useState
+# useStateもある
 
 ```php
 return fc(function () {
@@ -351,17 +348,7 @@ useEffect(function () use ($tab) {
 
 ---
 
-# JavaScriptがオフでも動く
-
-- usephp.js がプログレッシブエンハンスメントで強化する設計
-- JSが無い環境ではフォームPOSTにフォールバックして全機能が動く
-- テキストはすべて `htmlspecialchars` で自動エスケープされる（XSS安全）
-
-### Reactっぽく書けるけど、実体はサーバーレンダリングのPHP
-
----
-
-# React Islands：複雑なUIは本物のReactで
+# 複雑なUIは本物のReactで書ける（React Islands）
 
 ```php
 use Polidog\Relayer\React\Island;
@@ -429,7 +416,7 @@ php -S 127.0.0.1:8000 -t public
 
 ---
 
-# ルーティング：ディレクトリがそのままURL
+# ディレクトリがそのままURLになる
 
 ```
 src/Pages/
@@ -447,7 +434,7 @@ src/Pages/
 
 ---
 
-# APIルート：route.php を置くだけ
+# APIは route.php を置くだけ
 
 ```php
 // src/Pages/api/users/route.php
@@ -566,15 +553,13 @@ return fc(
 
 # Deferはクライアント側でもキャッシュできる
 
-## 2段階のキャッシュ
-
-- **L1: インメモリ** — opt-in不要で常時動作、ページ遷移・リロードで消える（TTLなし・LRUで最大64件）
-- **L2: localStorage** — リロード・タブをまたいで保持（opt-in）
+## localStorageにキャッシュ（opt-in）
 
 ```php
 #[Defer(name: 'feed', localCache: true, localCacheTtl: 60)]
 ```
 
+- リロード・タブをまたいで保持される
 - `localCacheTtl`（秒）で有効期限を指定 — HTTPの `Cache-Control` とは独立
 - キャッシュ破棄は `DEFER_CACHE_VERSION` のバンプ or `clearDeferCache()`
 
@@ -601,7 +586,7 @@ return fc(
 
 ---
 
-# Tehilim：スキーマファーストなDBツールキット
+# スキーマファーストなDBツールキット、Tehilim
 
 - 同じく自作の、Prisma風ワークフローのDBツールキット
 - 方針は「データは連想配列、型はPHPDoc」。ORMのクラスマッピングはしない
@@ -618,7 +603,7 @@ vendor/bin/tehilim migrate dev --name init # マイグレーション実行
 
 ---
 
-# スキーマ定義：schema.tehilim
+# schema.tehilim にスキーマを書く
 
 ```
 model User {
@@ -662,7 +647,7 @@ $posts = $db->post->findMany([
 
 ---
 
-# PHPStan連携：連想配列なのに型が見える
+# 連想配列なのにPHPStanで型が見える
 
 ```php
 $row = $db->user->findUnique([
