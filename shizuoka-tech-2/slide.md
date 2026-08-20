@@ -521,11 +521,9 @@ return function (PageContext $ctx): Closure {
 
 ## 「ログイン名だけ動的」なページ、CDNに乗せられますか？
 
-- セッションを使った瞬間 `Set-Cookie` が付いて、CDNは問答無用でBYPASSする
-- ログイン名の1行のために、ページ全体がキャッシュ不可になる
+- セッションを使うと `Set-Cookie` が付き、ページ丸ごとキャッシュ不可に
 
 ```php
-// UserHeaderDeferred.psx — ログイン名を出すUserHeaderをDeferでラップ
 return fc(
     fn (array $props) => <UserHeader />,
     defer: new Defer(name: 'user-header', cacheControl: 'private, no-store'),
@@ -533,7 +531,7 @@ return fc(
 ```
 
 - ページには `<UserHeaderDeferred fallback={<HeaderSkeleton />} />` と置く
-- SSR時はfallbackだけ描画 → usephp.jsがあとから `GET /_defer/user-header` で本体を取得
+- SSR時はfallbackだけ描画 → あとから `GET /_defer/user-header` で本体を取得
 - ページ本体はCDNキャッシュ、この部分だけ `private, no-store`
 
 ### 動的な部分だけを切り出せば、ページは丸ごとCDNに乗る
@@ -558,11 +556,11 @@ return fc(
 
 # 細かいところもひととおり揃えてある
 
-- HTTPキャッシュ — ページ単位で `Cache-Control` / ETagを宣言。`If-None-Match` が一致すれば描画もDBアクセスもせず304。セッションは遅延起動なので、状態を触らないページは `Set-Cookie` を吐かずCDNに乗る
+- HTTPキャッシュ — ページ単位で `Cache-Control` / ETagを宣言。`If-None-Match` が一致すれば描画もDBアクセスもせず304
+- セッションは遅延起動 — 状態を触らないページは `Set-Cookie` を吐かないのでCDNに乗る
 - i18n — 依存ゼロの多言語化。ロケール解決はURLプレフィックス → セッション → Cookie → Accept-Language
-- ミドルウェアとCORS設定
-- ページ単位のスクリプト読み込み — 使うページだけ `$ctx->js('/assets/chart.js', defer: true)`
-- HTTPクライアント / ロガー
+- ミドルウェア / CORS / HTTPクライアント / ロガー
+- ページ単位のJS読み込み — `$ctx->js('/assets/chart.js', defer: true)`
 - サービスはSymfony DIコンテナでオートワイヤ
 - プロファイラ（dev環境限定）、CLIコマンド、.envカスケード
 
